@@ -41,6 +41,16 @@ done
 # System wide functions
 . /etc/rc.d/init.d/functions
 
+# Create /dev/vmnetXX device
+vmware_create_vmnet() {
+    local vHubNr="$1" # IN
+    local vDevice="/dev/vmnet$vHubNr"
+
+    if [ ! -e "$vDevice" ]; then
+	mknod -m 600 "$vDevice" c 119 "$vHubNr"
+    fi
+}
+		  
 #
 # Create a temporary directory
 #
@@ -301,6 +311,7 @@ case "$1" in
 			eval 'hostaddr="$VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
 			eval 'netmask="$VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
 			if [ -n "$interface" ]; then
+				vmware_create_vmnet "$vHubNr"
 				# Connect a physical host ethernet interface to a virtual ethernet hub
 				msg_starting 'Bridged networking on /dev/vmnet'"$vHubNr"
 				busy
@@ -308,6 +319,7 @@ case "$1" in
 				  -d /var/run/"$bridge"-"$vHubNr".pid /dev/vmnet"$vHubNr" "$interface"
 				[ "$?" -eq 0 ] && ok || fail
 			elif [ -n "$hostaddr" -a -n "$netmask" ]; then
+				vmware_create_vmnet "$vHubNr"
 				eval 'samba="$VNET_'"$vHubNr"'_SAMBA"'
 				msg_starting 'Host-only networking on /dev/vmnet'"$vHubNr"
 				busy
