@@ -1,8 +1,6 @@
 #
 # TODO:
-#	- init script
-#	- SMP kernel module
-#	- help & debug subpkgs
+#	- Standarize init script
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -14,11 +12,12 @@ Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	4.5.1
 %define		_build	7568
-%define		_rel	0.%{_build}.3
+%define		_rel	0.%{_build}.4
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{version}-%{_build}.tar.gz
+Source1:	%{name}.init
 NoSource:	0
 %define		_urel	56
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
@@ -44,6 +43,39 @@ VMware Workstation Virtual Platform to cienka warstwa oprogramowania
 pozwalaj±ca na jednoczesne dzia³anie wielu go¶cinnych systemów
 operacyjnych na jednym zwyk³ym PC, bez repartycjonowania ani
 rebootowania, bez znacznej utraty wydajno¶ci.
+
+%package debug
+Summary:	TODO
+Summary(pl):	TODO
+Group:		Application/Emulators
+
+%description debug
+TODO.
+
+%description debug -l pl
+TODO.
+
+%package help
+Summary:	VMware Workstation help files
+Summary(pl):	Pliki pomocy dla VMware Workstation
+Group:		Application/Emulators
+
+%description help
+VMware Workstation help files.
+
+%description help -l pl
+Pliki pomocy dla VMware Workstation.
+
+%package init
+Summary:	TODO
+Summary(pl):	TODO
+Group:		Application/Emulators
+
+%description init
+TODO.
+
+%description init -l pl
+TODO.
 
 %package -n kernel-misc-vmware-workstation
 Summary:	Kernel modules for VMware Workstation
@@ -121,6 +153,7 @@ install -d \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware/{bin,configurator} \
 	$RPM_BUILD_ROOT%{_mandir} \
+	$RPM_BUILD_ROOT/etc/rc.d/init.d \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
 	$RPM_BUILD_ROOT/var/run/vmware
 
@@ -135,7 +168,9 @@ install vmmon-only/vmmon-smp.ko \
 install vmnet-only/vmnet-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
 %endif
-cd ..
+cd -
+
+install %{SOURCE0} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
 
 cp	bin/vmnet-* $RPM_BUILD_ROOT%{_bindir}
 cp	bin/vmware-[!cnsu]* $RPM_BUILD_ROOT%{_bindir}
@@ -145,7 +180,7 @@ cp	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 cp -r	lib/bin/vmware-vmx \
 	$RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
-cp -r	lib/{config,floppies,isoimages,messages,xkeymap} \
+cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
@@ -164,6 +199,22 @@ EOF
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post init
+/sbin/chkconfig --add vmware
+if [ -r /var/lock/subsys/vmware ]; then
+	/etc/rc.d/init.d/vmware restart >&2
+else
+	echo "Run \"/etc/rc.d/init.d/vmware start\" to start VMvare service."
+fi
+
+%preun init
+if [ "$1" = "0" ]; then
+	if [ -r /var/lock/subsys/vmware ]; then
+		/etc/rc.d/init.d/vmware stop >&2
+	fi
+	/sbin/chkconfig --del vmware
+fi
+
 %post	-n kernel-misc-vmware-workstation
 %depmod %{_kernel_ver}
 
@@ -178,6 +229,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%doc lib/configurator/*.conf
 %attr(755,root,root) %{_bindir}/vmnet*
 %attr(755,root,root) %{_bindir}/vmware
 %attr(755,root,root) %{_bindir}/vmware-loop
@@ -201,16 +253,30 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/vmware/bin
 # warning: SUID !!!
 %attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
-#
 %{_libdir}/vmware/config
 %{_libdir}/vmware/floppies
 %{_libdir}/vmware/isoimages
+%{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
 %{_libdir}/vmware/messages/en
 %lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
 %attr(1777,root,root) %dir /var/run/vmware
+
+%files debug
+%defattr(644,root,root,755)
+%dir %{_libdir}/vmware/bin-debug
+# warning: SUID !!!
+%attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
+
+%files help
+%defattr(644,root,root,755)
+%{_libdir}/vmware/help*
+
+%files init
+%defattr(644,root,root,755)
+%attr(754,root,root) /etc/rc.d/init.d/vmware
 
 %files -n kernel-misc-vmware-workstation
 %defattr(644,root,root,755)
