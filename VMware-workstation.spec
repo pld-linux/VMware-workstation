@@ -9,7 +9,7 @@
 
 %include	/usr/lib/rpm/macros.perl
 Summary:	VMware Workstation
-#Summary(pl):	
+Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	4.0.0
 %define _rel	%{_build}.2
@@ -18,6 +18,7 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://vmware-chil.www.conxion.com/software/%{name}-%{version}-%{_build}.tar.gz
 URL:		http://www.vmware.com/
+NoSource:	0
 BuildRequires:	rpm-perlprov
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_build}
@@ -26,15 +27,20 @@ Requires:	kernel(vmnet) = %{version}-%{_build}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-VMware Workstation Virtual Platform is a thin software layer that allows
-multiple guest operating systems to run concurrently on a single standard
-PC, without repartitioning or rebooting, and without significant loss
-of performance.
+VMware Workstation Virtual Platform is a thin software layer that
+allows multiple guest operating systems to run concurrently on a
+single standard PC, without repartitioning or rebooting, and
+without significant loss of performance.
 
-# %description -l pl
+%description -l pl
+VMware Workstation Virtual Platform to cienka warstwa oprogramowania
+pozwalaj帷a na jednoczesne dzia豉nie wielu go軼innych system闚
+operacyjnych na jednym zwyk造m PC, bez repartycjonowania ani
+rebootowania, bez znacznej utraty wydajno軼i.
 
 %package -n kernel-misc-vmware_workstation
-Summary:	Kernel modules fov VMware Workstation
+Summary:	Kernel modules for VMware Workstation
+Summary(pl):	Modu造 j康ra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_build}
@@ -43,12 +49,14 @@ Requires(post,postun):	/sbin/depmod
 %{!?_without_dist_kernel:%requires_releq_kernel_up}
 
 %description -n kernel-misc-vmware_workstation
-Kernel modules fov VMware Workstation: vmmon.o and vmnet.o.
+Kernel modules for VMware Workstation: vmmon and vmnet.
 
-# %description -n kernel-misc-vmware_workstation -l pl
+%description -n kernel-misc-vmware_workstation -l pl
+Modu造 j康ra dla VMware Workstation: vmmon i vmnet.
 
 %package -n kernel-smp-misc-vmware_workstation
-Summary:	SMP kernel modules fov VMware Workstation
+Summary:	SMP kernel modules for VMware Workstation
+Summary(pl):	Modu造 j康ra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_build}
@@ -57,9 +65,10 @@ Requires(post,postun):	/sbin/depmod
 %{!?_without_dist_kernel:%requires_releq_kernel_smp}
 
 %description -n kernel-smp-misc-vmware_workstation
-SMP kernel modules fov VMware Workstation: vmmon-smp.o and vmnet-smp.o.
+SMP kernel modules fov VMware Workstation: vmmon-smp and vmnet-smp.
 
-# %description -n kernel-smp-misc-vmware_workstation -l pl
+%description -n kernel-smp-misc-vmware_workstation -l pl
+Modu造 j康ra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
 
 %prep
 %setup -q -n vmware-distrib
@@ -67,7 +76,6 @@ tar xf lib/modules/source/vmmon.tar
 tar xf lib/modules/source/vmnet.tar
 
 %build
-
 FLAGS="-D__KERNEL__ -DMODULE -Wall -Wstrict-prototypes \
 	-fomit-frame-pointer -fno-strict-aliasing \
 	-pipe -fno-strength-reduce %{rpmcflags}"
