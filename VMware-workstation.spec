@@ -1,7 +1,6 @@
 #
 # TODO:
 #	- Dependencies
-#	- _urel 57
 #
 # Conditional build:
 %bcond_with	internal_libs	# internal libs stuff
@@ -13,7 +12,7 @@
 %define		_ver	4.5.1
 %define		_build	7568
 %define		_rel	3
-%define		_urel	56
+%define		_urel	57
 
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -24,7 +23,7 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
+# Source1-md5:	a8a159a0c24cf9ead71c44a4f5761950
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Patch0:		%{name}-Makefile.patch
