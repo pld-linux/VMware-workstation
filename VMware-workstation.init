@@ -287,7 +287,6 @@ case "$1" in
 		msg_already_running "VMware Workstation networking"
 		exit 1
 	fi	
-        exitcode='0'
     	# Try to load parport_pc. Failure is allowed as it does not exist
     	# on kernels 2.0
     	/sbin/modprobe parport_pc >/dev/null 2>&1
@@ -296,7 +295,6 @@ case "$1" in
 		busy
 		/sbin/modprobe $vnet
 		[ "$?" -eq 0 ] && ok || fail
-		exitcode=`expr "$exitcode" + "$?"`
 		vHubNr=0
 		while [ $vHubNr -lt 8 ]; do
 	    		eval 'interface="$VNET_'"$vHubNr"'_INTERFACE"'
@@ -309,7 +307,6 @@ case "$1" in
 				cd "$VMNET_BINDIR" && "$VMNET_BINDIR"/"$bridge" \
 				-d /var/run/"$bridge"-"$vHubNr".pid /dev/vmnet"$vHubNr" "$interface"
 				[ "$?" -eq 0 ] && ok || fail
-	        		exitcode=`expr "$exitcode" + "$?"`
 			elif [ -n "$hostaddr" -a -n "$netmask" ]; then
 				eval 'samba="$VNET_'"$vHubNr"'_SAMBA"'
 	        		msg_starting 'Host-only networking on /dev/vmnet'"$vHubNr"
@@ -317,7 +314,6 @@ case "$1" in
 	        		daemon vmware_start_hostonly "$vHubNr" 'vmnet'"$vHubNr" "$hostaddr" \
 				"$netmask" 'yes' "$samba"
 				[ "$?" -eq 0 ] && ok || fail
-	        		exitcode=`expr "$exitcode" + "$?"`
 				eval 'nat="$VNET_'"$vHubNr"'_NAT"'
                 		if [ "$nat" = 'yes' ]; then
 					# Start the NAT network user service
@@ -328,16 +324,12 @@ case "$1" in
 					-m /var/run/"$natd"-"$vHubNr".mac \
 					-c "$vmware_etc_dir"/vmnet"$vHubNr"/nat/nat.conf
 					[ "$?" -eq 0 ] && ok || fail
-					exitcode=`expr "$exitcode" + "$?"`
                 		fi
 			fi
-	    		vHubNr=`expr $vHubNr + 1`
+	    		vHubNr=$(($vHubNr + 1))
 		done
 
 	fi
-        if [ "$exitcode" -gt 0 ]; then
-    		exit 1
-        fi
 	touch /var/lock/subsys/"$subsys"
 	;;
 
@@ -352,7 +344,6 @@ case "$1" in
 		msg_not_running "VMware Workstation networking"
 		exit 1
 	fi	
-        exitcode='0'
     	# Try to unload parport_pc. Failure is allowed as it does not exist
     	# on kernels 2.0, and some other process could be using it.
     	/sbin/modprobe -r parport_pc >/dev/null 2>&1
@@ -370,14 +361,12 @@ case "$1" in
 				busy
 				vmware_stop_pidfile /var/run/"$bridge"-"$vHubNr".pid
 				[ "$?" -eq 0 ] && ok || fail
-	        		exitcode=`expr "$exitcode" + "$?"`
 			elif [ -n "$hostaddr" -a -n "$netmask" ]; then
 				# Stop a DHCP server on a private IP network
 				msg_stopping "DHCP server on /dev/vmnet$vHubNr"
 				busy
 				vmware_stop_pidfile /var/run/"$dhcpd"-"vmnet$vHubNr".pid
 				[ "$?" -eq 0 ] && ok || fail
-	        		exitcode=`expr "$exitcode" + "$?"`
 				eval 'samba="$VNET_'"$vHubNr"'_SAMBA"'
                 		if [ "$samba" = "yes" ]; then
 					# Stop a SMB share server on a private IP network
@@ -385,13 +374,11 @@ case "$1" in
 					busy
 					vmware_stop_pidfile /var/run/"$smbd"-'vmnet'"$vHubNr".pid
 					[ "$?" -eq 0 ] && ok || fail
-	            			exitcode=`expr "$exitcode" + "$?"`
 					# Stop a SMB name server on a private IP network
 	            			msg_stopping 'SMB name server on /dev/vmnet'"$vHubNr"
 					busy
 					vmware_stop_pidfile /var/run/"$nmbd"-'vmnet'"$vHubNr".pid
 					[ "$?" -eq 0 ] && ok || fail
-	            			exitcode=`expr "$exitcode" + "$?"`
 				fi
 				eval 'nat="$VNET_'"$vHubNr"'_NAT"'
                 			if [ "$nat" = "yes" ]; then
@@ -400,16 +387,14 @@ case "$1" in
 						busy
 						vmware_stop_pidfile /var/run/"$natd"-"$vHubNr".pid
 						[ "$?" -eq 0 ] && ok || fail
-	            				exitcode=`expr "$exitcode" + "$?"`
 					fi
                 			msg_stopping 'Host-only networking on /dev/vmnet'"$vHubNr"
 					busy
                 			vmware_stop_hostonly 'vmnet'"$vHubNr" "$hostaddr" "$netmask"
 					[ "$?" -eq 0 ] && ok || fail
-					exitcode=`expr "$exitcode" + "$?"`
 
 			fi
-	    		vHubNr=`expr $vHubNr + 1`
+	    		vHubNr=$(($vHubNr + 1))
 		done
 		msg_stopping 'Virtual ethernet'
 		busy
@@ -417,9 +402,7 @@ case "$1" in
     			/sbin/rmmod "$vnet"
 		fi
 		[ "$?" -eq "0" ] && ok || fail
-        	exitcode=`expr "$exitcode" + "$?"`
         fi
-        [ "$exitcode" -gt 0 ] && exit 1
 	rm -f /var/lock/subsys/"$subsys"
 	;;
   status)
