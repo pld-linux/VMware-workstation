@@ -45,8 +45,8 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %description
 VMware Workstation Virtual Platform is a thin software layer that
 allows multiple guest operating systems to run concurrently on a
-single standard PC, without repartitioning or rebooting, and
-without significant loss of performance.
+single standard PC, without repartitioning or rebooting, and without
+significant loss of performance.
 
 %description -l pl
 VMware Workstation Virtual Platform to cienka warstwa oprogramowania
@@ -57,7 +57,7 @@ rebootowania, bez znacznej utraty wydajno¶ci.
 %package debug
 Summary:	TODO
 Summary(pl):	TODO
-Group:		Application/Emulators
+Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description debug
@@ -69,7 +69,7 @@ TODO.
 %package help
 Summary:	VMware Workstation help files
 Summary(pl):	Pliki pomocy dla VMware Workstation
-Group:		Application/Emulators
+Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	mozilla
 
@@ -82,7 +82,7 @@ Pliki pomocy dla VMware Workstation.
 %package networking
 Summary:	TODO
 Summary(pl):	TODO
-Group:		Application/Emulators
+Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
 
@@ -95,7 +95,7 @@ TODO.
 %package samba
 Summary:	TODO
 Summary(pl):	TODO
-Group:		Application/Emulators
+Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description samba
