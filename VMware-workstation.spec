@@ -75,7 +75,7 @@ export FLAGS
 
 # vmmon
 %if %{?!_without_smp:1}0
-make -C vmmon-only \
+%{__make} -C vmmon-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CC_OPTS="$FLAGS -DVMWARE__FIX_IO_APIC_BASE=FIX_IO_APIC_BASE_0 -D__SMP__" \
 	SUPPORT_SMP=1
@@ -83,8 +83,8 @@ mv vmmon-only/driver-*/vmmon-smp-* vmmon-smp.o
 %endif
 
 %if %{?!_without_up:1}0
-make -C vmmon-only clean
-make -C vmmon-only \
+%{__make} -C vmmon-only clean
+%{__make} -C vmmon-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CC_OPTS="$FLAGS -DVMWARE__FIX_IO_APIC_BASE=FIX_IO_APIC_BASE_0"
 mv vmmon-only/driver-*/vmmon-* vmmon.o
@@ -92,7 +92,7 @@ mv vmmon-only/driver-*/vmmon-* vmmon.o
 
 # vmnet, makefile passes also -falign-loops=2 -falign-jumps=2 -falign-functions=2
 %if %{?!_without_smp:1}0
-make -C vmnet-only \
+%{__make} -C vmnet-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CFLAGS="$FLAGS "'$(INCLUDE) -D__SMP__' \
 	SUPPORT_SMP=1
@@ -100,8 +100,8 @@ mv vmnet-only/vmnet-smp-* vmnet-smp.o
 %endif
 
 %if %{?!_without_up:1}0
-make -C vmnet-only clean
-make -C vmnet-only \
+%{__make} -C vmnet-only clean
+%{__make} -C vmnet-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CFLAGS="$FLAGS "'$(INCLUDE)'
 mv vmnet-only/vmnet-up-* vmnet.o
