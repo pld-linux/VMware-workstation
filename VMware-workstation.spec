@@ -59,14 +59,10 @@ rebootowania, bez znacznej utraty wydajno¶ci.
 
 %package debug
 Summary:	TODO
-Summary(pl):	TODO
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description debug
-TODO.
-
-%description debug -l pl
 TODO.
 
 %package help
@@ -84,7 +80,6 @@ Pliki pomocy dla VMware Workstation.
 
 %package networking
 Summary:	TODO
-Summary(pl):	TODO
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
@@ -92,19 +87,12 @@ Requires:	kernel(vmnet) = %{version}-%{_rel}
 %description networking
 TODO.
 
-%description networking -l pl
-TODO.
-
 %package samba
 Summary:	TODO
-Summary(pl):	TODO
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description samba
-TODO.
-
-%description samba -l pl
 TODO.
 
 %package -n kernel-misc-vmmon
