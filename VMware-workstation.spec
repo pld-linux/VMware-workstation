@@ -36,7 +36,6 @@ BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_rel}
-Requires:	dev >= 2.9.0-7
 %{?with_dist_kernel:BuildRequires:	kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -110,6 +109,7 @@ Summary(pl):	Modu³ j±dra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_rel}
+Requires:	dev >= 2.9.0-7
 Requires(post,postun):	/sbin/depmod
 %{?with_dist_kernel:%requires_releq_kernel_up}
 
@@ -125,6 +125,7 @@ Summary(pl):	Modu³ j±dra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmnet) = %{version}-%{_rel}
+Requires:	dev >= 2.9.0-7
 Requires(post,postun):	/sbin/depmod
 %{?with_dist_kernel:%requires_releq_kernel_up}
 
