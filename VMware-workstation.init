@@ -393,6 +393,12 @@ case "$1" in
 			fi
 			vHubNr=$(($vHubNr + 1))
 		done
+		msg_stopping 'Virtual machine monitor'
+		busy
+		if /sbin/lsmod | grep -q ^"$driver"; then
+			/sbin/rmmod "$driver"
+		fi
+		[ "$?" -eq "0" ] && ok || fail
 		msg_stopping 'Virtual ethernet'
 		busy
 		if /sbin/lsmod | grep -q ^"$vnet"; then
