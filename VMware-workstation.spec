@@ -292,7 +292,6 @@ fi
 %attr(755,root,root) %{_bindir}/vmware
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
-%attr(755,root,root) %{_bindir}/vmware-ping
 %attr(755,root,root) %{_bindir}/vmware-wizard
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
@@ -328,6 +327,7 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-natd
 %attr(755,root,root) %{_bindir}/vmnet-netifup
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
+%attr(755,root,root) %{_bindir}/vmware-ping
 
 %files samba
 %defattr(644,root,root,755)
