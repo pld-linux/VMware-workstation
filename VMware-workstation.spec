@@ -12,7 +12,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	0.2
+%define		_rel	0.3
 %define		_urel	56
 
 Summary:	VMware Workstation
@@ -27,6 +27,7 @@ NoSource:	0
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
 Source2:	%{name}.init
+Source3:	%{name}-vmnet.conf
 Patch0:		%{name}-Makefile.patch
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
@@ -196,7 +197,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware \
 	$RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware/{bin,configurator} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/bin \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
@@ -216,6 +217,7 @@ install vmnet-only/vmnet-smp.ko \
 cd -
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/vmware/vmnet.conf
 
 cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
 
@@ -229,16 +231,6 @@ cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeym
 
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
-
-cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations
-answer BINDIR %{_bindir}
-answer LIBDIR %{_libdir}/vmware
-answer MANDIR %{_mandir}
-answer INITDIR /tmp
-answer INITSCRIPTSDIR /tmp
-answer RUN_CONFIGURATOR no
-answer EULA_AGREED yes
-EOF
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -297,7 +289,6 @@ fi
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet7
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet8
 %dir %{_sysconfdir}/vmware
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/locations
 %attr(755,root,root) %{_bindir}/vmware
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
@@ -330,6 +321,7 @@ fi
 
 %files networking
 %defattr(644,root,root,755)
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet.conf
 %attr(754,root,root) /etc/rc.d/init.d/vmnet
 %attr(755,root,root) %{_bindir}/vmnet-bridge
 %attr(755,root,root) %{_bindir}/vmnet-dhcpd
