@@ -248,7 +248,7 @@ rm -rf $RPM_BUILD_ROOT
 if [ -r /var/lock/subsys/vmnet ]; then
 	/etc/rc.d/init.d/vmnet restart >&2
 else
-	echo "Run \"/etc/rc.d/init.d/vmnet start\" to start VMvare networking service."
+	echo "Run \"/etc/rc.d/init.d/vmnet start\" to start VMware networking service."
 fi
 
 %preun networking
