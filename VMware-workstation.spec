@@ -40,6 +40,7 @@ NoSource:	0
 #Icon:		XPM format req.
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
+BuildRequires:	libpng1
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.153
 BuildRequires:	%{kgcc_package}
