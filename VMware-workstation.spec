@@ -12,7 +12,7 @@
 #
 %define		_ver	4.5.2
 %define		_build	8848
-%define		_rel	3.1
+%define		_rel	4
 %define		_urel	84
 #
 Summary:	VMware Workstation
@@ -35,6 +35,7 @@ Source7:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
+Patch3:		%{name}-module_desc.patch
 NoSource:	0
 #Icon:		XPM format req.
 URL:		http://www.vmware.com/
@@ -180,6 +181,7 @@ tar xf vmmon.tar
 tar xf vmnet.tar
 %patch0 -p0
 %patch1 -p0
+%patch3 -p0
 cd -
 %patch2 -p1
 
