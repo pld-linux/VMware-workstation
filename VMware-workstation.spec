@@ -1,7 +1,8 @@
 #
 # TODO:
 #	- Dependencies
-#	- icon (SOURCES/VMware-workstation.png) and .desktop
+#	- .desktop
+#	- http://www.vmware.com/support/ws45/doc/devices_linux_kb_ws.html#1040861
 #
 # Conditional build:
 %bcond_with	internal_libs	# internal libs stuff
@@ -9,13 +10,12 @@
 %bcond_without	smp		# without SMP kernel modules
 #
 %include	/usr/lib/rpm/macros.perl
-
-
+#
 %define		_ver	4.5.2
 %define		_build	8848
 %define		_rel	1
 %define		_urel	75
-
+#
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
@@ -28,19 +28,19 @@ Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.ta
 # Source1-md5:	42d9e6b52cd020324114f4c70f569eaa
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
+Source4:	%{name}.png
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
 NoSource:	0
-#Icon:		VMware-workstation.png
+#Icon:		XPM format req.
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.118
+BuildRequires:	rpmbuild(macros) >= 1.153
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_rel}
-%{?with_dist_kernel:BuildRequires:	kernel-module-build}
-%{?with_dist_kernel:BuildRequires:	kernel-doc}
+%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_noautoprovfiles %{_libdir}/vmware/lib/.*\.so.*
@@ -197,9 +197,9 @@ for mod in vmmon vmnet ; do
 	touch include/config/MARKER
         ln -sf %{_kernelsrcdir}/config-$cfg .config
         ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-	ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
+	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
         %{__make} -C %{_kernelsrcdir} modules \
-    	    SUBDIRS=$PWD O=$PWD \
+    	    M=$PWD O=$PWD \
 	    VM_KBUILD=26
         mv -f $mod.ko ../built/$mod-$cfg.ko
 	cd -
@@ -214,6 +214,7 @@ install -d \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware/bin \
 	$RPM_BUILD_ROOT%{_mandir} \
+	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
 	$RPM_BUILD_ROOT/var/run/vmware
@@ -233,8 +234,8 @@ cd -
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/vmware/vmnet.conf
-install %{name}.png $RPM_BUILD_ROOT%{_pixmapsdir}/%{name}.png
-install *.desktop $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE4} $RPM_BUILD_ROOT%{_pixmapsdir}
+#install *.desktop $RPM_BUILD_ROOT%{_desktopdir}
 
 cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
 
@@ -311,7 +312,7 @@ fi
 %{?with_internal_libs:%attr(755,root,root) %{_bindir}/vmware.sh}
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
-%attr(755,root,root) %{_bindir}/vmware-wizard
+%attr(755,root,root) %{_bindir}/vmware-vdiskmanager
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 # warning: SUID !!!
