@@ -11,7 +11,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	3
+%define		_rel	4
 %define		_urel	57
 
 Summary:	VMware Workstation
@@ -27,7 +27,8 @@ Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.ta
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-run_script.patch
+Patch1:		%{name}-compat.patch
+Patch2:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
@@ -169,32 +170,33 @@ cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
 tar xf vmnet.tar
 %patch0 -p0
+%patch1 -p0
 cd -
-%patch1 -p1
+%patch2 -p1
 
 %build
 cd vmware-any-any-update%{_urel}
 for mod in vmmon vmnet ; do
-	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
-		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-			exit 1
-		fi
-		cd ${mod}-only
-		%{__make} clean
-		install -d include/linux
-		%{__make} -C %{_kernelsrcdir} mrproper SUBDIRS=$PWD O=$PWD
-		ln -sf %{_kernelsrcdir}/config-$cfg .config
-		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-		touch include/linux/MARKER
-		touch includeCheck.h
-		%{__make} -C %{_kernelsrcdir} scripts_basic SUBDIRS=$PWD O=$PWD
-		%{__make} -C %{_kernelsrcdir} modules \
-			%{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-			SUBDIRS=$PWD O=$PWD \
-			VM_KBUILD=26
-		mv ${mod}.ko ${mod}-$cfg.ko
-		cd -
-	done
+    cd $mod-only
+    rm -rf built
+    mkdir built
+    for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
+        if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
+	    exit 1
+	fi
+	install -d include/linux
+	%{__make} -C %{_kernelsrcdir} mrproper \
+	    SUBDIRS=$PWD O=$PWD \
+	    RCS_FIND_IGNORE="-name built"
+        ln -sf %{_kernelsrcdir}/config-$cfg .config
+        ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
+        touch include/includeCheck.h
+        %{__make} -C %{_kernelsrcdir} scripts modules \
+    	    SUBDIRS=$PWD O=$PWD \
+	    VM_KBUILD=26
+        mv $mod.ko built/$mod-$cfg.ko
+    done
+    cd -
 done
 cd -
 
@@ -210,14 +212,14 @@ install -d \
 	$RPM_BUILD_ROOT/var/run/vmware
 
 cd vmware-any-any-update%{_urel}
-install vmmon-only/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+install vmmon-only/built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
-install vmnet-only/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+install vmnet-only/built/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmnet.ko
 %if %{with smp} && %{with dist_kernel}
-install vmmon-only/vmmon-smp.ko \
+install vmmon-only/built/vmmon-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmmon.ko
-install vmnet-only/vmnet-smp.ko \
+install vmnet-only/built/vmnet-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
 %endif
 cd -
@@ -349,18 +351,18 @@ fi
 
 %files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}/misc/vmmon.*
+/lib/modules/%{_kernel_ver}/misc/vmmon.ko*
 
 %files -n kernel-misc-vmnet
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}/misc/vmnet.*
+/lib/modules/%{_kernel_ver}/misc/vmnet.ko*
 
 %if %{with smp} && %{with dist_kernel}
 %files	-n kernel-smp-misc-vmmon
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}smp/misc/vmmon-smp.*
+/lib/modules/%{_kernel_ver}smp/misc/vmmon.ko*
 
 %files	-n kernel-smp-misc-vmnet
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}smp/misc/vmnet-smp.*
+/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko*
 %endif
