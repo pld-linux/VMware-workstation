@@ -23,7 +23,7 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	a8a159a0c24cf9ead71c44a4f5761950
+# Source1-md5:	022e6d22c82ff46bfd45c8fef035718a
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Patch0:		%{name}-Makefile.patch
@@ -179,15 +179,17 @@ cd -
 
 %build
 cd vmware-any-any-update%{_urel}
+mkdir built
+cp -a vmmon-only vmmon-only.clean
+cp -a vmnet-only vmnet-only.clean
 for mod in vmmon vmnet ; do
-    cd $mod-only
-    rm -rf built
-    mkdir built
     for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
         if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
 	    exit 1
 	fi
-	rm -rf include/linux include/asm
+	rm -rf $mod-only
+	cp -a $mod-only.clean $mod-only
+	cd $mod-only
 	install -d include/linux
         ln -sf %{_kernelsrcdir}/config-$cfg .config
         ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
@@ -195,12 +197,9 @@ for mod in vmmon vmnet ; do
         %{__make} -C %{_kernelsrcdir} modules \
     	    SUBDIRS=$PWD O=$PWD \
 	    VM_KBUILD=26
-        mv $mod.ko built/$mod-$cfg.ko
-	%{__make} -C %{_kernelsrcdir} clean \
-	    SUBDIRS=$PWD O=$PWD \
-	    RCS_FIND_IGNORE="-name built"
+        mv -f $mod.ko ../built/$mod-$cfg.ko
+	cd -
     done
-    cd -
 done
 cd -
 
@@ -216,14 +215,14 @@ install -d \
 	$RPM_BUILD_ROOT/var/run/vmware
 
 cd vmware-any-any-update%{_urel}
-install vmmon-only/built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+install built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
-install vmnet-only/built/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+install built/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmnet.ko
 %if %{with smp} && %{with dist_kernel}
-install vmmon-only/built/vmmon-smp.ko \
+install built/vmmon-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmmon.ko
-install vmnet-only/built/vmnet-smp.ko \
+install built/vmnet-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
 %endif
 cd -
