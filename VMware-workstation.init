@@ -298,7 +298,7 @@ case "$1" in
 		[ "$?" -eq 0 ] && ok || fail
 		exitcode=`expr "$exitcode" + "$?"`
 		vHubNr=0
-		while [ $vHubNr -lt 256 ]; do
+		while [ $vHubNr -lt 8 ]; do
 	    		eval 'interface="$VNET_'"$vHubNr"'_INTERFACE"'
 	    		eval 'hostaddr="$VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
 	    		eval 'netmask="$VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
@@ -360,7 +360,7 @@ case "$1" in
 		# NB: must kill off processes using vmnet before
 		#     unloading module
 		vHubNr=0
-		while [ $vHubNr -lt 256 ]; do
+		while [ $vHubNr -lt 8 ]; do
 	    		eval 'interface="$VNET_'"$vHubNr"'_INTERFACE"'
 	    		eval 'hostaddr="$VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
 	    		eval 'netmask="$VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
