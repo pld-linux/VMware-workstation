@@ -19,6 +19,9 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{version}-%{_build}.tar.gz
 NoSource:	0
+Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update53.tar.gz
+# Source1-md5:	6e7c462f5dcb8881db5ccc709f43f56f
+Patch0:		%{name}-Makefile.patch
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
@@ -74,43 +77,56 @@ Modu³y j±dra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
 
 %prep
 %setup -q -n vmware-distrib
-#tar xf lib/modules/source/vmmon.tar
-#tar xf lib/modules/source/vmnet.tar
+%setup -qDT -n vmware-distrib -a1
+cd vmware-any-any-update53
+tar xf vmmon.tar
+tar xf vmnet.tar
+cd ..
+%patch0 -p1
 
 %build
-#FLAGS="-D__KERNEL__ -DMODULE -Wall -Wstrict-prototypes \
-#	-fomit-frame-pointer -fno-strict-aliasing \
-#	-pipe -fno-strength-reduce %{rpmcflags}"
-#export FLAGS
+cd vmware-any-any-update53
 
-# vmmon
-#%if %{with smp}
-#%{__make} -C vmmon-only \
-#	HEADER_DIR=%{_kernelsrcdir}/include \
-#	CC_OPTS="$FLAGS -DVMWARE__FIX_IO_APIC_BASE=FIX_IO_APIC_BASE_0 -D__SMP__" \
-#	SUPPORT_SMP=1
-#mv vmmon-only/driver-*/vmmon-smp-* vmmon-smp.o
-#%endif
+for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
 
-#%{__make} -C vmmon-only clean
-#%{__make} -C vmmon-only \
-#	HEADER_DIR=%{_kernelsrcdir}/include \
-#	CC_OPTS="$FLAGS -DVMWARE__FIX_IO_APIC_BASE=FIX_IO_APIC_BASE_0"
-#mv vmmon-only/driver-*/vmmon-* vmmon.o
+    if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
+	exit 1
+    fi
 
-# vmnet, makefile passes also -falign-loops=2 -falign-jumps=2 -falign-functions=2
-#%if %{with smp}
-#%{__make} -C vmnet-only \
-#	HEADER_DIR=%{_kernelsrcdir}/include \
-#	CFLAGS="$FLAGS "'$(INCLUDE) -D__SMP__' \
-#	SUPPORT_SMP=1
-#mv vmnet-only/vmnet-smp-* vmnet-smp.o
-
-#%{__make} -C vmnet-only clean
-#%{__make} -C vmnet-only \
-#	HEADER_DIR=%{_kernelsrcdir}/include \
-#	CFLAGS="$FLAGS "'$(INCLUDE)'
-#mv vmnet-only/vmnet-up-* vmnet.o
+    cd vmmon-only
+    %{__make} clean
+    install -d include/{linux,config}
+    %{__make} -C %{_kernelsrcdir} mrproper \
+        SUBDIRS=$PWD \
+	O=$PWD
+    ln -sf %{_kernelsrcdir}/config-$cfg .config
+    ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
+    touch include/linux/MARKER
+    touch includeCheck.h
+    %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
+        SUBDIRS=$PWD \
+        O=$PWD \
+        VM_KBUILD=26
+    mv vmmon.ko vmmon-$cfg.ko
+    cd ..
+    
+    cd vmnet-only
+    %{__make} clean
+    install -d include/{linux,config}
+    %{__make} -C %{_kernelsrcdir} mrproper \
+        SUBDIRS=$PWD \
+	O=$PWD
+    ln -sf %{_kernelsrcdir}/config-$cfg .config
+    ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
+    touch include/linux/MARKER
+    touch includeCheck.h
+    %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
+        SUBDIRS=$PWD \
+        O=$PWD \
+        VM_KBUILD=26
+    mv vmnet.ko vmnet-$cfg.ko
+    cd ..
+done
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -120,11 +136,20 @@ install -d \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware \
 	$RPM_BUILD_ROOT%{_datadir}/vmware \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}/misc \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}{,smp}/misc
 
-#%{?with_smp:mv vm*-smp.o $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc}
-#mv vm*.o $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc
+cd vmware-any-any-update53
+install vmmon-only/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}/misc/vmmon.ko
+install vmnet-only/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}/misc/vmnet.ko
+%if %{with smp} && %{with dist_kernel}
+install vmmon-only/vmmon-smp.ko \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc/vmmon.ko
+install vmnet-only/vmnet-smp.ko \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc/vmnet.ko
+%endif
+cd ..
 
 cp	bin/* $RPM_BUILD_ROOT%{_bindir}
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
@@ -160,14 +185,21 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_bindir}/vmnet*
+%attr(755,root,root) %{_bindir}/vmware
+%attr(755,root,root) %{_bindir}/vmware-loop
+%attr(755,root,root) %{_bindir}/vmware-mount.pl
+%attr(755,root,root) %{_bindir}/vmware-nmbd
+%attr(755,root,root) %{_bindir}/vmware-ping
+%attr(755,root,root) %{_bindir}/vmware-smb*
+%attr(755,root,root) %{_bindir}/vmware-wizard
 %doc doc/*
 %{_sysconfdir}/vmware
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-mks
-# warnning: SUID !!!
+# warning: SUID !!!
 %attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
 #
 %{_libdir}/vmware/config
@@ -180,14 +212,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
 
-#%files -n kernel-misc-vmware_workstation
-#%defattr(644,root,root,755)
-#/lib/modules/%{_kernel_ver}/misc/vmmon.o*
-#/lib/modules/%{_kernel_ver}/misc/vmnet.o*
+%files -n kernel-misc-vmware_workstation
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver_str}/misc/*
 
-%if %{with smp}
-#%files	-n kernel-smp-misc-vmware_workstation
-#%defattr(644,root,root,755)
-#/lib/modules/%{_kernel_ver}smp/misc/vmmon-smp.o*
-#/lib/modules/%{_kernel_ver}smp/misc/vmnet-smp.o*
+%if %{with smp} && %{with dist_kernel}
+%files	-n kernel-smp-misc-vmware_workstation
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver_str}smp/misc/*
 %endif
