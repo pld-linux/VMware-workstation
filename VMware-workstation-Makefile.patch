@@ -97,17 +97,6 @@
  else
  
  include $(SRCROOT)/Makefile.normal
---- vmmon-only/linux/hostif_compat.h.orig	2004-03-30 00:01:40.071406800 +0200
-+++ vmmon-only/linux/hostif_compat.h	2004-03-29 23:59:46.057739512 +0200
-@@ -297,7 +297,7 @@
-    return 0;
- }
- 
--#include <linux/compile.h>
-+#include <linux/compiler.h>
- 
- #define prop_hex(key,digits,val)			\
-    asm volatile(".section \".properties\"\n\t"		\
 --- vmnet-only/Makefile.orig	2004-02-18 18:14:53.000000000 +0100
 +++ vmnet-only/Makefile	2004-03-30 00:08:12.821699680 +0200
 @@ -14,9 +14,9 @@
