@@ -1,5 +1,5 @@
---- vmware-distrib/vmware-any-any-update53/vmmon-only/Makefile.orig	2004-02-18 18:07:06.000000000 +0100
-+++ vmware-distrib/vmware-any-any-update53/vmmon-only/Makefile	2004-03-13 01:07:03.000000000 +0100
+--- vmmon-only/Makefile.orig	2004-03-14 20:45:24.000000000 +0100
++++ vmmon-only/Makefile	2004-03-29 23:58:30.000000000 +0200
 @@ -14,9 +14,9 @@
  VM_UNAME = $(shell uname -r)
  
@@ -12,10 +12,13 @@
  
  DRIVER := vmmon
  
-@@ -47,29 +47,6 @@
- ifeq ($(VM_KBUILD_OUTPUT),)
- VM_KBUILD_OUTPUT := $(BUILD_DIR)
+@@ -44,32 +44,6 @@
+     VM_KBUILD_OUTPUT := $(O)
+   endif
  endif
+-ifeq ($(VM_KBUILD_OUTPUT),)
+-VM_KBUILD_OUTPUT := $(BUILD_DIR)
+-endif
 -ifeq ($(call vm_check_file,$(BUILD_DIR)/Makefile), yes)
 -ifeq ($(call vm_check_file,$(VM_KBUILD_OUTPUT)/.config), no)
 -VM_DUMMY := $(shell echo >&2 '*** Your sources installation is broken:')
@@ -29,12 +32,12 @@
 -VM_DUMMY := $(shell echo >&2 '*** Hit ENTER to continue, or ^C to stop build.')
 -VM_DUMMY := $(shell read dummy)
 -else
--ifeq ($(call vm_check_file,$(BUILD_DIR)/Rules.make), yes)
+-ifneq ($(call vm_check_file,$(BUILD_DIR)/Rules.make), yes)
+-VM_KBUILD := 26
+-else
 -ifeq ($(shell if $(GREP) "^PATCHLEVEL = 4$$" $(BUILD_DIR)/Makefile > /dev/null 2>&1; then echo "yes"; fi), yes)
 -VM_KBUILD := 24
 -endif
--else
--VM_KBUILD := 26
 -endif
 -endif
 -endif
@@ -42,7 +45,7 @@
  endif
  
  ifndef VM_KBUILD_SHOWN
-@@ -90,9 +67,6 @@
+@@ -90,9 +64,6 @@
  
  VMCCVER := $(shell $(CC) -dumpversion)
  
@@ -52,9 +55,9 @@
  ifeq ($(VM_KBUILD), 24)
  DRIVER_KO := $(DRIVER).o
  else
-@@ -102,41 +76,13 @@
- auto-build: $(DRIVER_KO)
- 	cp -f $< $(SRCROOT)/../$(DRIVER).o
+@@ -105,41 +76,13 @@
+ $(DRIVER): $(DRIVER_KO)
+ 	cp -f $< $@
  
 -# Pass gcc version down the chain, so we can detect if kernel attempts to use unapproved compiler
 -VM_CCVER := $(VMCCVER)
@@ -94,8 +97,19 @@
  else
  
  include $(SRCROOT)/Makefile.normal
---- vmware-distrib/vmware-any-any-update53/vmnet-only/Makefile.orig	2004-02-18 18:14:53.000000000 +0100
-+++ vmware-distrib/vmware-any-any-update53/vmnet-only/Makefile	2004-03-13 01:08:14.000000000 +0100
+--- vmmon-only/linux/hostif_compat.h.orig	2004-03-30 00:01:40.071406800 +0200
++++ vmmon-only/linux/hostif_compat.h	2004-03-29 23:59:46.057739512 +0200
+@@ -297,7 +297,7 @@
+    return 0;
+ }
+ 
+-#include <linux/compile.h>
++#include <linux/compiler.h>
+ 
+ #define prop_hex(key,digits,val)			\
+    asm volatile(".section \".properties\"\n\t"		\
+--- vmnet-only/Makefile.orig	2004-02-18 18:14:53.000000000 +0100
++++ vmnet-only/Makefile	2004-03-30 00:08:12.821699680 +0200
 @@ -14,9 +14,9 @@
  VM_UNAME = $(shell uname -r)
  
