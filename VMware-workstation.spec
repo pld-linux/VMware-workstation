@@ -13,7 +13,7 @@ Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	4.5.1
 %define		_build	7568
-%define		_rel	0.%{_build}.1
+%define		_rel	0.%{_build}.2
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
@@ -31,6 +31,8 @@ Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_noautoprovfiles %{_libdir}/vmware/lib/.*\.so.*
 
 %description
 VMware Workstation Virtual Platform is a thin software layer that
