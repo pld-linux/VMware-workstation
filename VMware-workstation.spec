@@ -24,6 +24,7 @@ Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.ta
 # Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
 Patch0:		%{name}-Makefile.patch
 URL:		http://www.vmware.com/
+BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
