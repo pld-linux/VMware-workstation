@@ -7,21 +7,21 @@
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	smp		# without SMP kernel modules
 #
-%define		no_install_post_compress_modules	1
 %include	/usr/lib/rpm/macros.perl
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
-Version:	4.0.5
-%define		_build	6030
-%define		_rel	0.%{_build}.4
+Version:	4.5.1
+%define		_build	7568
+%define		_rel	0.%{_build}.1
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{version}-%{_build}.tar.gz
 NoSource:	0
-Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update53.tar.gz
-# Source1-md5:	6e7c462f5dcb8881db5ccc709f43f56f
+%define		_urel	56
+Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
+# Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
 Patch0:		%{name}-Makefile.patch
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
@@ -79,14 +79,13 @@ Modu³y j±dra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
 %prep
 %setup -q -n vmware-distrib
 %setup -qDT -n vmware-distrib -a1
-cd vmware-any-any-update53
+cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
 tar xf vmnet.tar
-cd ..
-%patch0 -p1
+%patch0 -p0
 
 %build
-cd vmware-any-any-update53
+cd vmware-any-any-update%{_urel}
 
 for mod in vmmon vmnet ; do
 	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
@@ -125,7 +124,7 @@ install -d \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
 	$RPM_BUILD_ROOT/var/run/vmware
 
-cd vmware-any-any-update53
+cd vmware-any-any-update%{_urel}
 install vmmon-only/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
 install vmnet-only/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
@@ -195,7 +194,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware
-%attr(755,root,root) %{_libdir}/vmware/bin/vmware-mks
 # warning: SUID !!!
 %attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
 #
