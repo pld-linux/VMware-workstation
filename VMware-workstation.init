@@ -318,11 +318,6 @@ ipv4_broadcast() {
 
 # END_OF_IPV4_DOT_SH
 
-# Are we running in a VM?
-vmware_inVM() {
-  "$vmware_etc_dir"/checkvm >/dev/null 2>&1
-}
-
 # This is a function in case a future product name contains language-specific
 # escape characters.
 vmware_product_name() {
@@ -540,26 +535,13 @@ vmware_stop_pidfile() {
 }
 
 vmware_load_module() {
-#   /sbin/insmod -s -f "/lib/modules/`uname -r`/misc/$1.o" || exit 1
-	/sbin/modprobe $1 || exit 1
-#	exit 0
+	/sbin/modprobe "$1"
 }
 
 vmware_unload_module() {
    if [ "`isLoaded "$1"`" = 'yes' ]; then
-      /sbin/rmmod "$1" || exit 1
+      /sbin/rmmod "$1"
    fi
-   exit 0
-}
-
-# Start the virtual machine monitor kernel service
-vmware_start_vmmon() {
-   vmware_load_module $driver
-}
-
-# Stop the virtual machine monitor kernel service
-vmware_stop_vmmon() {
-  vmware_unload_module $driver
 }
 
 # Start the virtual machine parallel port kernel service
@@ -792,183 +774,144 @@ vmware_stop_nat() {
 # See how we were called.
 case "$1" in
   start)
-        if [ -e "$vmware_etc_dir"/not_configured ]; then
-	   echo "`vmware_product_name`"' is installed, but it has not been (correctly) configured'
-           echo 'for the running kernel. To (re-)configure it, invoke the'
-           echo 'following command: '"$vmdb_answer_BINDIR"'/vmware-config.pl.'
-           echo
-
-           exit 1
-        fi
-
-        if vmware_inVM; then
-            # Refuse to start services in a VM: they are useless
-            exit 1
-        fi
-
-	echo 'Starting VMware services:'
         exitcode='0'
-
-	vmware_exec 'Virtual machine monitor' vmware_start_vmmon
-        exitcode=`expr "$exitcode" + "$?"`
-
         if [ "`isPpuserNeeded`" = '1' ]; then
-	   vmware_exec 'Virtual bidirectional parallel port' \
-             vmware_start_vmppuser
-           exitcode=`expr "$exitcode" + "$?"`
+		vmware_exec 'Virtual bidirectional parallel port' vmware_start_vmppuser
+        	exitcode=`expr "$exitcode" + "$?"`
         else
-           # Try to load parport_pc. Failure is allowed as it does not exist
-           # on kernels 2.0
-           /sbin/modprobe parport_pc >/dev/null 2>&1
+        	# Try to load parport_pc. Failure is allowed as it does not exist
+        	# on kernels 2.0
+        	/sbin/modprobe parport_pc >/dev/null 2>&1
         fi
 
 	if [ "$vmdb_answer_NETWORKING" = 'yes' ]; then
-	    msg_starting 'Virtual ethernet'
-	    busy
-	    vmware_start_vmnet
-	    exitcode=`expr "$exitcode" + "$?"`
-	    ok
-
-	    vHubNr=0
-	    while [ $vHubNr -lt 256 ]; do
-	        eval 'interface="$vmdb_answer_VNET_'"$vHubNr"'_INTERFACE"'
-	        eval 'hostaddr="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
-	        eval 'netmask="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
-		if [ -n "$interface" ]; then
-	            vmware_exec 'Bridged networking on /dev/vmnet'"$vHubNr" \
-	            vmware_start_bridge "$vHubNr" "$interface"
-	            exitcode=`expr "$exitcode" + "$?"`
-		elif [ -n "$hostaddr" -a -n "$netmask" ]; then
-		    eval 'samba="$vmdb_answer_VNET_'"$vHubNr"'_SAMBA"'
-	            vmware_bg_exec 'Host-only networking on /dev/vmnet'"$vHubNr" \
-	            vmware_start_hostonly "$vHubNr" 'vmnet'"$vHubNr" \
-	            "$hostaddr" "$netmask" 'yes' "$samba"
-	            exitcode=`expr "$exitcode" + "$?"`
-
-		    eval 'nat="$vmdb_answer_VNET_'"$vHubNr"'_NAT"'
-                    if [ "$nat" = 'yes' ]; then
-			vmware_exec 'NAT networking on /dev/vmnet'"$vHubNr" \
-			  vmware_start_nat "$vHubNr"
-			exitcode=`expr "$exitcode" + "$?"`
-                    fi
-		fi
-	        vHubNr=`expr $vHubNr + 1`
-	    done
+		msg_starting 'Virtual ethernet'
+		busy
+		vmware_start_vmnet
+		[ "$?" -eq 0 ] && ok || fail
+		exitcode=`expr "$exitcode" + "$?"`
+		vHubNr=0
+		while [ $vHubNr -lt 256 ]; do
+	    		eval 'interface="$vmdb_answer_VNET_'"$vHubNr"'_INTERFACE"'
+	    		eval 'hostaddr="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
+	    		eval 'netmask="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
+			if [ -n "$interface" ]; then
+	        		msg_starting 'Bridged networking on /dev/vmnet'"$vHubNr"
+				busy
+	        		vmware_start_bridge "$vHubNr" "$interface"
+				[ "$?" -eq 0 ] && ok || fail
+	        		exitcode=`expr "$exitcode" + "$?"`
+			elif [ -n "$hostaddr" -a -n "$netmask" ]; then
+				eval 'samba="$vmdb_answer_VNET_'"$vHubNr"'_SAMBA"'
+	        		vmware_bg_exec 'Host-only networking on /dev/vmnet'"$vHubNr" \
+	        		vmware_start_hostonly "$vHubNr" 'vmnet'"$vHubNr" \
+	        		"$hostaddr" "$netmask" 'yes' "$samba"
+	        		exitcode=`expr "$exitcode" + "$?"`
+				eval 'nat="$vmdb_answer_VNET_'"$vHubNr"'_NAT"'
+                		if [ "$nat" = 'yes' ]; then
+					vmware_exec 'NAT networking on /dev/vmnet'"$vHubNr" \
+					vmware_start_nat "$vHubNr"
+					exitcode=`expr "$exitcode" + "$?"`
+                		fi
+			fi
+	    		vHubNr=`expr $vHubNr + 1`
+		done
 
 	fi
-
         if [ "$exitcode" -gt 0 ]; then
-          # Set the 'not configured' flag
-          touch "$vmware_etc_dir"'/not_configured'
-          chmod 644 "$vmware_etc_dir"'/not_configured'
-          db_add_file "$vmware_db" "$vmware_etc_dir"'/not_configured' \
-            "$vmware_etc_dir"'/not_configured'
-          exit 1
+    		exit 1
         fi
-
-	[ -d /var/lock/subsys ] || mkdir -p /var/lock/subsys
 	touch /var/lock/subsys/"$subsys"
 	;;
 
   stop)
         if [ "`countVMs`" -gt 0 ]; then
-           echo 'At least one instance of '"`vmware_product_name`"' is still running. Please stop all running'
-           echo 'instances of '"`vmware_product_name`"' first.'
-           echo
-
-           # The unconfigurator handle this exit code differently
-           exit 2
+    		echo 'At least one instance of '"`vmware_product_name`"' is still running. Please stop all running'
+    		echo 'instances of '"`vmware_product_name`"' first.'
+    		echo
+    		# The unconfigurator handle this exit code differently
+    		exit 2
 	fi
-
-	echo 'Stopping VMware services:'
         exitcode='0'
-
-	vmware_exec 'Virtual machine monitor' vmware_stop_vmmon
-        exitcode=`expr "$exitcode" + "$?"`
-
         if [ "`isPpuserNeeded`" = '1' ]; then
-           vmware_exec 'Virtual bidirectional parallel port' \
-             vmware_stop_vmppuser
-           exitcode=`expr "$exitcode" + "$?"`
+        	vmware_exec 'Virtual bidirectional parallel port' vmware_stop_vmppuser
+        	exitcode=`expr "$exitcode" + "$?"`
         else
-           # Try to unload parport_pc. Failure is allowed as it does not exist
-           # on kernels 2.0, and some other process could be using it.
-           /sbin/modprobe -r parport_pc >/dev/null 2>&1
+        	# Try to unload parport_pc. Failure is allowed as it does not exist
+        	# on kernels 2.0, and some other process could be using it.
+        	/sbin/modprobe -r parport_pc >/dev/null 2>&1
         fi
-
 	if [ "$vmdb_answer_NETWORKING" = "yes" ]; then
-	    # NB: must kill off processes using vmnet before
-	    #     unloading module
-	    vHubNr=0
-	    while [ $vHubNr -lt 256 ]; do
-	        eval 'interface="$vmdb_answer_VNET_'"$vHubNr"'_INTERFACE"'
-	        eval 'hostaddr="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
-	        eval 'netmask="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
-		if [ -n "$interface" ]; then
-	            vmware_exec "Bridged networking on /dev/vmnet$vHubNr" vmware_stop_bridge "$vHubNr"
-	            exitcode=`expr "$exitcode" + "$?"`
-		elif [ -n "$hostaddr" -a -n "$netmask" ]; then
-		    vmware_exec "DHCP server on /dev/vmnet$vHubNr" vmware_stop_dhcpd \
-	            "vmnet$vHubNr"
-	            exitcode=`expr "$exitcode" + "$?"`
+		# NB: must kill off processes using vmnet before
+		#     unloading module
+		vHubNr=0
+		while [ $vHubNr -lt 256 ]; do
+	    		eval 'interface="$vmdb_answer_VNET_'"$vHubNr"'_INTERFACE"'
+	    		eval 'hostaddr="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
+	    		eval 'netmask="$vmdb_answer_VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
+			if [ -n "$interface" ]; then
+	        		msg_stopping "Bridged networking on /dev/vmnet$vHubNr"
+				busy
+				vmware_stop_bridge "$vHubNr"
+				[ "$?" -eq 0 ] && ok || fail
+	        		exitcode=`expr "$exitcode" + "$?"`
+			elif [ -n "$hostaddr" -a -n "$netmask" ]; then
+				vmware_exec "DHCP server on /dev/vmnet$vHubNr" vmware_stop_dhcpd \
+	        		"vmnet$vHubNr"
+	        		exitcode=`expr "$exitcode" + "$?"`
+				eval 'samba="$vmdb_answer_VNET_'"$vHubNr"'_SAMBA"'
+                		if [ "$samba" = "yes" ]; then
+	            			vmware_exec 'SMB share server on /dev/vmnet'"$vHubNr" \
+	            			vmware_stop_smbd 'vmnet'"$vHubNr"
+	            			exitcode=`expr "$exitcode" + "$?"`
 
-		    eval 'samba="$vmdb_answer_VNET_'"$vHubNr"'_SAMBA"'
-                    if [ "$samba" = "yes" ]; then
-	                vmware_exec 'SMB share server on /dev/vmnet'"$vHubNr" \
-	                vmware_stop_smbd 'vmnet'"$vHubNr"
-	                exitcode=`expr "$exitcode" + "$?"`
+	            			vmware_exec 'SMB name server on /dev/vmnet'"$vHubNr" \
+	            			vmware_stop_nmbd 'vmnet'"$vHubNr"
+	            			exitcode=`expr "$exitcode" + "$?"`
+				fi
+				eval 'nat="$vmdb_answer_VNET_'"$vHubNr"'_NAT"'
+                			if [ "$nat" = "yes" ]; then
+                    				vmware_exec 'NAT networking on /dev/vmnet'"$vHubNr" \
+                        			vmware_stop_nat "$vHubNr"
+	            				exitcode=`expr "$exitcode" + "$?"`
+					fi
+                			vmware_exec 'Host-only networking on /dev/vmnet'"$vHubNr" \
+                			vmware_stop_hostonly 'vmnet'"$vHubNr" "$hostaddr" "$netmask"
 
-	                vmware_exec 'SMB name server on /dev/vmnet'"$vHubNr" \
-	                vmware_stop_nmbd 'vmnet'"$vHubNr"
-	                exitcode=`expr "$exitcode" + "$?"`
-		    fi
-
-		    eval 'nat="$vmdb_answer_VNET_'"$vHubNr"'_NAT"'
-                    if [ "$nat" = "yes" ]; then
-                        vmware_exec 'NAT networking on /dev/vmnet'"$vHubNr" \
-                          vmware_stop_nat "$vHubNr"
-	                exitcode=`expr "$exitcode" + "$?"`
-		    fi
-
-                    vmware_exec 'Host-only networking on /dev/vmnet'"$vHubNr" \
-                    vmware_stop_hostonly 'vmnet'"$vHubNr" "$hostaddr" "$netmask"
-
-		fi
-	        vHubNr=`expr $vHubNr + 1`
-	    done
-
-	    vmware_exec 'Virtual ethernet' vmware_stop_vmnet
-            exitcode=`expr "$exitcode" + "$?"`
+			fi
+	    		vHubNr=`expr $vHubNr + 1`
+		done
+		msg_stopping 'Virtual ethernet'
+		busy
+		vmware_stop_vmnet
+		[ "$?" -eq "0" ] && ok || fail
+        	exitcode=`expr "$exitcode" + "$?"`
         fi
-
         if [ "$exitcode" -gt 0 ]; then
-           exit 1
+    		exit 1
         fi
-
 	rm -f /var/lock/subsys/"$subsys"
 	;;
 
   status)
         if [ "`countVMs`" -gt 0 ]; then
-           echo 'At least one instance of '"`vmware_product_name`"' is still running.'
-           echo
+        	echo 'At least one instance of '"`vmware_product_name`"' is still running.'
+        	echo
 	fi
-
 	if [ "$vmdb_answer_NETWORKING" = "yes" ]; then
-            status "$bridge"
-            status "$dhcpd"
-            status "$netifup"
+        	status "$bridge"
+        	status "$dhcpd"
+        	status "$netifup"
         fi
-
 	echo -n "Module $driver "
 	/sbin/modprobe "$driver" >/dev/null 2>&1 && echo installed || echo "not installed"
         if [ "`isPpuserNeeded`" = '1' ]; then
-            echo -n "Module $ppuser "
-            /sbin/modprobe "$ppuser" >/dev/null 2>&1 && echo installed || echo "not installed"
+    	        echo -n "Module $ppuser "
+        	/sbin/modprobe "$ppuser" >/dev/null 2>&1 && echo installed || echo "not installed"
         fi
 	if [ "$vmdb_answer_NETWORKING" = "yes" ]; then
-            echo -n "Module $vnet "
-            /sbin/modprobe "$vnet" >/dev/null 2>&1 && echo installed || echo "not installed"
+        	echo -n "Module $vnet "
+        	/sbin/modprobe "$vnet" >/dev/null 2>&1 && echo installed || echo "not installed"
         fi
 	;;
 
