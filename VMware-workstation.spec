@@ -1,4 +1,8 @@
 #
+# TODO:
+#	- init script
+#	- kernel modules
+#
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	smp		# without SMP kernel modules
@@ -112,7 +116,7 @@ Modu³y j±dra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
 rm -rf $RPM_BUILD_ROOT
 install -d \
 	$RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_sysconfdir} \
+	$RPM_BUILD_ROOT%{_sysconfdir}/{,vmware} \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware \
 	$RPM_BUILD_ROOT%{_datadir}/vmware \
@@ -122,14 +126,22 @@ install -d \
 #%{?with_smp:mv vm*-smp.o $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc}
 #mv vm*.o $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc
 
-cp    bin/* $RPM_BUILD_ROOT%{_bindir}
-cp -r etc   $RPM_BUILD_ROOT%{_sysconfdir}/vmware
-cp -r man/* $RPM_BUILD_ROOT%{_mandir}
+cp	bin/* $RPM_BUILD_ROOT%{_bindir}
+cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
+gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 
-cp -r lib/{bin*,config*,floppies,isoimages,lib,licenses,messages,smb,xkeymap} \
+cp -r	lib/{bin*,config*,floppies,isoimages,lib,licenses,messages,smb,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
-gunzip $RPM_BUILD_ROOT%{_mandir}/man?/*.gz
+cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations
+answer BINDIR %{_bindir}
+answer LIBDIR %{_libdir}/vmware
+answer MANDIR %{_mandir}
+answer INITDIR /tmp
+answer INITSCRIPTSDIR /tmp
+answer RUN_CONFIGURATOR no
+answer EULA_AGREED yes
+EOF
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -148,27 +160,23 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc doc/*
 %attr(755,root,root) %{_bindir}/*
-%{_mandir}/man1/*
-
-%dir %{_sysconfdir}/vmware
-%ghost %{_sysconfdir}/vmware/not_configured
-%attr(755,root,root) %{_sysconfdir}/vmware/*.sh
-
+%doc doc/*
+%{_sysconfdir}/vmware
 %dir %{_libdir}/vmware
-%dir %{_libdir}/vmware/bin*
-%attr(755,root,root) %{_libdir}/vmware/bin*/*
+%dir %{_libdir}/vmware/bin
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware-mks
+%attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
 %{_libdir}/vmware/config
 %{_libdir}/vmware/configurator
 %{_libdir}/vmware/floppies
 %{_libdir}/vmware/isoimages
 %{_libdir}/vmware/lib
 %{_libdir}/vmware/licenses
-%dir %{_libdir}/vmware/messages
-%lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/smb
 %{_libdir}/vmware/xkeymap
+%{_mandir}/man1/*
 
 #%files -n kernel-misc-vmware_workstation
 #%defattr(644,root,root,755)
