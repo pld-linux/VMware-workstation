@@ -136,7 +136,8 @@ install -d \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware \
 	$RPM_BUILD_ROOT%{_datadir}/vmware \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}{,smp}/misc
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}{,smp}/misc \
+	$RPM_BUILD_ROOT/var/run/vmware
 
 cd vmware-any-any-update53
 install vmmon-only/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
@@ -211,6 +212,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/vmware/smb
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
+%attr(1777,root,root) %dir /var/run/vmware
 
 %files -n kernel-misc-vmware_workstation
 %defattr(644,root,root,755)
