@@ -170,7 +170,7 @@ install vmnet-only/vmnet-smp.ko \
 %endif
 cd -
 
-install %{SOURCE0} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
+install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
 
 cp	bin/vmnet-* $RPM_BUILD_ROOT%{_bindir}
 cp	bin/vmware-[!cnsu]* $RPM_BUILD_ROOT%{_bindir}
@@ -268,7 +268,7 @@ fi
 %defattr(644,root,root,755)
 %dir %{_libdir}/vmware/bin-debug
 # warning: SUID !!!
-%attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
+%attr(4755,root,root) %{_libdir}/vmware/bin-debug/vmware-vmx
 
 %files help
 %defattr(644,root,root,755)
