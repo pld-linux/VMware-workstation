@@ -1,3 +1,9 @@
+#
+# Conditional build:
+# _without_dist_kernel - without distribution kernel
+# _without_smp         - without UP  kernel modules
+# _without_up          - without SMP kernel modules
+#
 
 %define	_build	4460
 
@@ -6,17 +12,16 @@ Summary:	VMware Workstation
 #Summary(pl):	
 Name:		VMware-workstation
 Version:	4.0.0
-Release:	%{_build}.1
+Release:	%{_build}.2
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://vmware-chil.www.conxion.com/software/%{name}-%{version}-%{_build}.tar.gz
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
-#BuildRequires:	
-#BuildRequires:	
-#BuildRequires:	
-#BuildRequires:	
-#PreReq:		-
+BuildRequires:	%{kgcc_package}
+Requires:	kernel(vmmon) = %{version}-%{_build}
+Requires:	kernel(vmnet) = %{version}-%{_build}
+%{!?_without_dist_kernel:BuildRequires:         kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -26,6 +31,34 @@ PC, without repartitioning or rebooting, and without significant loss
 of performance.
 
 # %description -l pl
+
+%package -n kernel-misc-vmware_workstation
+Summary:	Kernel modules fov VMware Workstation
+Release:	%{release}@@%{_kernel_ver_str}
+Group:		Base/Kernel
+Provides:	kernel(vmmon) = %{version}-%{_build}
+Provides:	kernel(vmnet) = %{version}-%{_build}
+Requires(post,postun):	/sbin/depmod
+%{!?_without_dist_kernel:%requires_releq_kernel_up}
+
+%description -n kernel-misc-vmware_workstation
+Kernel modules fov VMware Workstation: vmmon.o and vmnet.o.
+
+# %description -n kernel-misc-vmware_workstation -l pl
+
+%package -n kernel-smp-misc-vmware_workstation
+Summary:	SMP kernel modules fov VMware Workstation
+Release:	%{release}@@%{_kernel_ver_str}
+Group:		Base/Kernel
+Provides:	kernel(vmmon) = %{version}-%{_build}
+Provides:	kernel(vmnet) = %{version}-%{_build}
+Requires(post,postun):	/sbin/depmod
+%{!?_without_dist_kernel:%requires_releq_kernel_smp}
+
+%description -n kernel-smp-misc-vmware_workstation
+SMP kernel modules fov VMware Workstation: vmmon-smp.o and vmnet-smp.o.
+
+# %description -n kernel-smp-misc-vmware_workstation -l pl
 
 %prep
 %setup -q -n vmware-distrib
@@ -40,32 +73,38 @@ FLAGS="-D__KERNEL__ -DMODULE -Wall -Wstrict-prototypes \
 export FLAGS
 
 # vmmon
+%if %{?!_without_smp:1}0
 make -C vmmon-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CC_OPTS="$FLAGS -DVMWARE__FIX_IO_APIC_BASE=FIX_IO_APIC_BASE_0 -D__SMP__" \
 	SUPPORT_SMP=1
 mv vmmon-only/driver-*/vmmon-smp-* vmmon-smp.o
-make -C vmmon-only clean
+%endif
 
+%if %{?!_without_up:1}0
+make -C vmmon-only clean
 make -C vmmon-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CC_OPTS="$FLAGS -DVMWARE__FIX_IO_APIC_BASE=FIX_IO_APIC_BASE_0"
 mv vmmon-only/driver-*/vmmon-* vmmon.o
-make -C vmmon-only clean
+%endif
 
 # vmnet, makefile passes also -falign-loops=2 -falign-jumps=2 -falign-functions=2
+%if %{?!_without_smp:1}0
 make -C vmnet-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CFLAGS="$FLAGS "'$(INCLUDE) -D__SMP__' \
 	SUPPORT_SMP=1
 mv vmnet-only/vmnet-smp-* vmnet-smp.o
-make -C vmnet-only clean
+%endif
 
+%if %{?!_without_up:1}0
+make -C vmnet-only clean
 make -C vmnet-only \
 	HEADER_DIR=%{_kernelsrcdir}/include \
 	CFLAGS="$FLAGS "'$(INCLUDE)'
 mv vmnet-only/vmnet-up-* vmnet.o
-make -C vmnet-only clean
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -74,7 +113,12 @@ install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir} \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware \
-	$RPM_BUILD_ROOT%{_datadir}/vmware
+	$RPM_BUILD_ROOT%{_datadir}/vmware \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc
+
+%{?!_without_smp:mv vm*-smp.o	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc}
+%{?!_without_up: mv vm*.o	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc}
 
 cp    bin/* $RPM_BUILD_ROOT%{_bindir}
 cp -r etc   $RPM_BUILD_ROOT%{_sysconfdir}/vmware
@@ -88,8 +132,17 @@ gunzip $RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-# %post depmod
-# %postun
+%post	-n kernel-misc-vmware_workstation
+/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+
+%postun -n kernel-misc-vmware_workstation
+/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+
+%post	-n kernel-smp-misc-vmware_workstation
+/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+
+%postun -n kernel-smp-misc-vmware_workstation
+/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
 
 %files
 %defattr(644,root,root,755)
@@ -114,3 +167,17 @@ rm -rf $RPM_BUILD_ROOT
 %lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/smb
 %{_libdir}/vmware/xkeymap
+
+%if %{?!_without_up:1}0
+%files -n kernel-misc-vmware_workstation
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vmmon.o*
+/lib/modules/%{_kernel_ver}/misc/vmnet.o*
+%endif
+
+%if %{?!_without_smp:1}0
+%files	-n kernel-smp-misc-vmware_workstation
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}smp/misc/vmmon-smp.o*
+/lib/modules/%{_kernel_ver}smp/misc/vmnet-smp.o*
+%endif
