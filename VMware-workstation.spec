@@ -190,7 +190,8 @@ for mod in vmmon vmnet ; do
 	rm -rf $mod-only
 	cp -a $mod-only.clean $mod-only
 	cd $mod-only
-	install -d include/linux
+	install -d include/{linux,config}
+	touch include/config/MARKER
         ln -sf %{_kernelsrcdir}/config-$cfg .config
         ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 	ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
