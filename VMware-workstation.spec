@@ -32,7 +32,7 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
 NoSource:	0
-Icon:		%{name}.png
+Icon:		VMware-workstation.png
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
