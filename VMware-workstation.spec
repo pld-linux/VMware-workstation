@@ -14,7 +14,7 @@
 %define		_ver	4.5.2
 %define		_build	8848
 %define		_rel	1
-%define		_urel	75
+%define		_urel	78
 #
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -25,7 +25,7 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	42d9e6b52cd020324114f4c70f569eaa
+# Source1-md5:	1b8cbb8c409fa5b16ae0ccccf1afe7de
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
