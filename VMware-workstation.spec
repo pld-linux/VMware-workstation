@@ -1,7 +1,6 @@
 #
 # TODO:
 #	- Dependencies
-#	- .desktop
 #	- http://www.vmware.com/support/ws45/doc/devices_linux_kb_ws.html#1040861
 #
 # Conditional build:
@@ -13,7 +12,7 @@
 #
 %define		_ver	4.5.2
 %define		_build	8848
-%define		_rel	1
+%define		_rel	2
 %define		_urel	78
 #
 Summary:	VMware Workstation
@@ -29,6 +28,9 @@ Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.ta
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
+Source5:	%{name}.desktop
+Source6:	%{name}-nat.conf
+Source7:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
@@ -211,10 +213,12 @@ cd -
 rm -rf $RPM_BUILD_ROOT
 install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
 	$RPM_BUILD_ROOT%{_bindir} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware/bin \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
+	$RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
 	$RPM_BUILD_ROOT/var/run/vmware
@@ -235,7 +239,12 @@ cd -
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/vmware/vmnet.conf
 install %{SOURCE4} $RPM_BUILD_ROOT%{_pixmapsdir}
-#install *.desktop $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE5} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+install %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+
+touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
+touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 
 cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
 
@@ -329,6 +338,7 @@ fi
 %{_mandir}/man1/*
 %attr(1777,root,root) %dir /var/run/vmware
 %{_pixmapsdir}/*.png
+%{_desktopdir}/%{name}.desktop
 
 %files debug
 %defattr(644,root,root,755)
@@ -350,6 +360,10 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-netifup
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
 %attr(755,root,root) %{_bindir}/vmware-ping
+%{_sysconfdir}/vmware/vmnet8
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+%verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 
 %files samba
 %defattr(644,root,root,755)
