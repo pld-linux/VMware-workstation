@@ -1,0 +1,66 @@
+--- vmware-distrib/vmware-any-any-update53/vmmon-only/Makefile.orig	2004-02-18 18:07:06.000000000 +0100
++++ vmware-distrib/vmware-any-any-update53/vmmon-only/Makefile	2004-03-12 23:58:56.893410504 +0100
+@@ -14,9 +14,9 @@
+ VM_UNAME = $(shell uname -r)
+ 
+ # Header directory for the running kernel
+-HEADER_DIR = /lib/modules/$(VM_UNAME)/build/include
++HEADER_DIR = /usr/src/linux/include
+ 
+-BUILD_DIR = $(HEADER_DIR)/..
++BUILD_DIR = .
+ 
+ DRIVER := vmmon
+ 
+@@ -90,9 +90,6 @@
+ 
+ VMCCVER := $(shell $(CC) -dumpversion)
+ 
+-# If there is no version defined, we are in toplevel pass, not yet in kernel makefiles...
+-ifeq ($(VERSION),)
+-
+ ifeq ($(VM_KBUILD), 24)
+ DRIVER_KO := $(DRIVER).o
+ else
+@@ -102,41 +99,13 @@
+ auto-build: $(DRIVER_KO)
+ 	cp -f $< $(SRCROOT)/../$(DRIVER).o
+ 
+-# Pass gcc version down the chain, so we can detect if kernel attempts to use unapproved compiler
+-VM_CCVER := $(VMCCVER)
+-export VM_CCVER
+-VM_CC := $(CC)
+-export VM_CC
+-
+ MAKEOVERRIDES := $(filter-out CC=%,$(MAKEOVERRIDES))
+ 
+ $(DRIVER_KO):
+ 	make -C $(BUILD_DIR) SUBDIRS=$$PWD SRCROOT=$$PWD/$(SRCROOT) modules
+ 
+-else
+-
+-ifneq ($(VM_CCVER), $(VMCCVER))
+-$(warning *** Inappropriate build environment: you wanted to use gcc \
+- version $(VM_CCVER) while kernel attempts to use gcc version $(VMCCVER).)
+-$(error For proper build you'll have to replace $(CC) with symbolic \
+- link to $(VM_CC))
+-endif
+-
+-endif
+-
+ include $(SRCROOT)/Makefile.kernel
+ 
+-ifdef TOPDIR
+-ifeq ($(VM_KBUILD), 24)
+-
+-O_TARGET := $(DRIVER).o
+-
+-obj-y := $($(DRIVER)-y)
+-
+-include $(TOPDIR)/Rules.make
+-endif
+-endif
+-
+ else
+ 
+ include $(SRCROOT)/Makefile.normal
