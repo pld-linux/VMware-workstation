@@ -14,7 +14,7 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{version}-%{_build}.tar.gz
-# Source0-md5:	154dfb1b09ce46fe3d1716f01fba3855
+NoSource:	0
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
