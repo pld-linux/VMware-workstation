@@ -1,8 +1,8 @@
 #
 # TODO:
 #	- Standarize init script
-#	- what about internal samba?
-#	- what about internal libs?
+#	- What about internal libs?
+#	- What about config?
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -12,7 +12,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	0.1
+%define		_rel	0.2
 %define		_urel	56
 
 Summary:	VMware Workstation
@@ -86,6 +86,18 @@ TODO.
 %description networking -l pl
 TODO.
 
+%package samba
+Summary:	TODO
+Summary(pl):	TODO
+Group:		Application/Emulators
+Requires:	%{name} = %{version}-%{release}
+
+%description samba
+TODO.
+
+%description samba -l pl
+TODO.
+
 %package -n kernel-misc-vmmon
 Summary:	Kernel module for VMware Workstation
 Summary(pl):	Modu³ j±dra dla VMware Workstation
@@ -156,7 +168,6 @@ tar xf vmnet.tar
 
 %build
 cd vmware-any-any-update%{_urel}
-
 for mod in vmmon vmnet ; do
 	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
 		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
@@ -165,23 +176,20 @@ for mod in vmmon vmnet ; do
 		cd ${mod}-only
 		%{__make} clean
 		install -d include/{linux,config}
-		%{__make} -C %{_kernelsrcdir} mrproper \
-			SUBDIRS=$PWD \
-			O=$PWD
+		%{__make} -C %{_kernelsrcdir} mrproper SUBDIRS=$PWD O=$PWD
 		ln -sf %{_kernelsrcdir}/config-$cfg .config
-		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h \
-			include/linux/autoconf.h
+		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 		touch include/linux/MARKER
 		touch includeCheck.h
 		%{__make} -C %{_kernelsrcdir} modules \
 			%{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-			SUBDIRS=$PWD \
-			O=$PWD \
+			SUBDIRS=$PWD O=$PWD \
 			VM_KBUILD=26
 		mv ${mod}.ko ${mod}-$cfg.ko
-		cd ..
+		cd -
 	done
 done
+cd -
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -209,15 +217,14 @@ cd -
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
 
-cp	bin/vmnet-* $RPM_BUILD_ROOT%{_bindir}
-cp	bin/vmware-[!cnsu]* $RPM_BUILD_ROOT%{_bindir}
+cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
 
 cp	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 
 cp -r	lib/bin/vmware-vmx \
 	$RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
-cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,xkeymap} \
+cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
@@ -278,12 +285,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc lib/configurator/*.conf
-%attr(755,root,root) %{_bindir}/vmware
-%attr(755,root,root) %{_bindir}/vmware-loop
-%attr(755,root,root) %{_bindir}/vmware-mount.pl
-%attr(755,root,root) %{_bindir}/vmware-ping
-%attr(755,root,root) %{_bindir}/vmware-wizard
+%doc doc/* lib/configurator/vmnet-{dhcpd,nat}.conf
 %dev (c,10,165) %attr(640,root,root) /dev/vmmon
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet0
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet1
@@ -294,9 +296,13 @@ fi
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet6
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet7
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet8
-%doc doc/*
 %dir %{_sysconfdir}/vmware
 %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/locations
+%attr(755,root,root) %{_bindir}/vmware
+%attr(755,root,root) %{_bindir}/vmware-loop
+%attr(755,root,root) %{_bindir}/vmware-mount.pl
+%attr(755,root,root) %{_bindir}/vmware-ping
+%attr(755,root,root) %{_bindir}/vmware-wizard
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 # warning: SUID !!!
@@ -330,6 +336,15 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-natd
 %attr(755,root,root) %{_bindir}/vmnet-netifup
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
+
+%files samba
+%defattr(644,root,root,755)
+%doc lib/configurator/vmnet-smb.conf
+%attr(755,root,root) %{_bindir}/vmware-nmbd
+%attr(755,root,root) %{_bindir}/vmware-smbd
+%attr(755,root,root) %{_bindir}/vmware-smbpasswd
+%attr(755,root,root) %{_bindir}/vmware-smbpasswd.bin
+%{_libdir}/vmware/smb
 
 %files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
