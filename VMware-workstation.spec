@@ -203,6 +203,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/vmware/isoimages
 %{_libdir}/vmware/lib
 %{_libdir}/vmware/licenses
+%dir %{_libdir}/vmware/messages
+%{_libdir}/vmware/messages/en
+%lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/smb
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
