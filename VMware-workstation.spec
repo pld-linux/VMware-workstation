@@ -12,7 +12,7 @@
 %define		_ver	4.5.1
 %define		_build	7568
 %define		_rel	4
-%define		_urel	57
+%define		_urel	66
 
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -187,17 +187,18 @@ for mod in vmmon vmnet ; do
         if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
 	    exit 1
 	fi
+	rm -rf include/linux include/asm
 	install -d include/linux
-	%{__make} -C %{_kernelsrcdir} mrproper \
-	    SUBDIRS=$PWD O=$PWD \
-	    RCS_FIND_IGNORE="-name built"
         ln -sf %{_kernelsrcdir}/config-$cfg .config
         ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-        touch include/includeCheck.h
-        %{__make} -C %{_kernelsrcdir} scripts modules \
+	ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
+        %{__make} -C %{_kernelsrcdir} modules \
     	    SUBDIRS=$PWD O=$PWD \
 	    VM_KBUILD=26
         mv $mod.ko built/$mod-$cfg.ko
+	%{__make} -C %{_kernelsrcdir} clean \
+	    SUBDIRS=$PWD O=$PWD \
+	    RCS_FIND_IGNORE="-name built"
     done
     cd -
 done
