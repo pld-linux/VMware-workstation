@@ -1,5 +1,6 @@
---- vmmon-only/include/compat_wait.h.orig	2003-08-06 18:12:16.000000000 +0000
-+++ vmmon-only/include/compat_wait.h	2004-04-14 08:50:24.930433888 +0000
+diff -urN vmmon-only.org/include/compat_wait.h vmmon-only/include/compat_wait.h
+--- vmmon-only.org/include/compat_wait.h	2004-05-12 16:49:05.725457240 +0200
++++ vmmon-only/include/compat_wait.h	2004-05-12 17:08:13.689940112 +0200
 @@ -28,19 +28,7 @@
  
  #endif
@@ -76,8 +77,33 @@
 -
 -
  #endif /* __COMPAT_WAIT_H__ */
---- vmnet-only/compat_wait.h.orig	2003-08-06 17:49:19.000000000 +0000
-+++ vmnet-only/compat_wait.h	2004-04-14 08:50:57.797437344 +0000
+diff -urN vmnet-only.org/compat_sock.h vmnet-only/compat_sock.h
+--- vmnet-only.org/compat_sock.h	2004-05-12 16:49:09.092945304 +0200
++++ vmnet-only/compat_sock.h	2004-05-12 17:09:13.732812208 +0200
+@@ -5,20 +5,4 @@
+ #include <net/sock.h>
+ 
+ 
+-/*
+- * Between 2.5.70 and 2.5.71 all sock members were renamed from XXX to sk_XXX.
+- *
+- * VMW_HAVE_SK_WMEM_ALLOC is defined in module Makefile if kernel's struct sock
+- * has sk_wmem_alloc member. See vmnet's Makefile.kernel for details.
+- * It also means that all modules including this file should do
+- *
+- * EXTRA_CFLAGS += $(call vm_check_build, $(SRCROOT)/socket.c,  -DVMW_HAVE_SK_WMEM_ALLOC, )
+- *
+- * in their Makefiles.
+- */
+-#ifndef VMW_HAVE_SK_WMEM_ALLOC
+-#   define sk_wmem_alloc wmem_alloc
+-#endif
+-
+-
+ #endif /* __COMPAT_SOCK_H__ */
+diff -urN vmnet-only.org/compat_wait.h vmnet-only/compat_wait.h
+--- vmnet-only.org/compat_wait.h	2004-05-12 16:49:09.092945304 +0200
++++ vmnet-only/compat_wait.h	2004-05-12 17:08:13.691939808 +0200
 @@ -28,19 +28,7 @@
  
  #endif
