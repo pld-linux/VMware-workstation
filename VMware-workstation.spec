@@ -1,34 +1,38 @@
 #
 # TODO:
 #	- Standarize init script
+#	- what about internal samba?
+#	- what about internal libs?
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	smp		# without SMP kernel modules
 #
 %include	/usr/lib/rpm/macros.perl
+
+%define		_ver	4.5.1
+%define		_build	7568
+%define		_rel	0.1
+%define		_urel	56
+
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
-Version:	4.5.1
-%define		_build	7568
-%define		_rel	0.%{_build}.4
+Version:	%{_ver}.%{_build}
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
-Source0:	http://download3.vmware.com/software/wkst/%{name}-%{version}-%{_build}.tar.gz
-Source1:	%{name}.init
+Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 NoSource:	0
-%define		_urel	56
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
+Source2:	%{name}.init
 Patch0:		%{name}-Makefile.patch
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_rel}
-Requires:	kernel(vmnet) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -48,6 +52,7 @@ rebootowania, bez znacznej utraty wydajno¶ci.
 Summary:	TODO
 Summary(pl):	TODO
 Group:		Application/Emulators
+Requires:	%{name} = %{version}-%{release}
 
 %description debug
 TODO.
@@ -59,6 +64,8 @@ TODO.
 Summary:	VMware Workstation help files
 Summary(pl):	Pliki pomocy dla VMware Workstation
 Group:		Application/Emulators
+Requires:	%{name} = %{version}-%{release}
+Requires:	mozilla
 
 %description help
 VMware Workstation help files.
@@ -66,48 +73,78 @@ VMware Workstation help files.
 %description help -l pl
 Pliki pomocy dla VMware Workstation.
 
-%package init
+%package networking
 Summary:	TODO
 Summary(pl):	TODO
 Group:		Application/Emulators
+Requires:	%{name} = %{version}-%{release}
+Requires:	kernel(vmnet) = %{version}-%{_rel}
 
-%description init
+%description networking
 TODO.
 
-%description init -l pl
+%description networking -l pl
 TODO.
 
-%package -n kernel-misc-vmware-workstation
-Summary:	Kernel modules for VMware Workstation
-Summary(pl):	Modu³y j±dra dla VMware Workstation
+%package -n kernel-misc-vmmon
+Summary:	Kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_rel}
+Requires(post,postun):	/sbin/depmod
+%{?with_dist_kernel:%requires_releq_kernel_up}
+
+%description -n kernel-misc-vmmon
+Kernel modules for VMware Workstation - vmmon.
+
+%description -n kernel-misc-vmmon -l pl
+Modu³y j±dra dla VMware Workstation - vmmon.
+
+%package -n kernel-misc-vmnet
+Summary:	Kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
 Provides:	kernel(vmnet) = %{version}-%{_rel}
 Requires(post,postun):	/sbin/depmod
 %{?with_dist_kernel:%requires_releq_kernel_up}
 
-%description -n kernel-misc-vmware-workstation
-Kernel modules for VMware Workstation: vmmon and vmnet.
+%description -n kernel-misc-vmnet
+Kernel modules for VMware Workstation - vmnet.
 
-%description -n kernel-misc-vmware-workstation -l pl
-Modu³y j±dra dla VMware Workstation: vmmon i vmnet.
+%description -n kernel-misc-vmnet -l pl
+Modu³y j±dra dla VMware Workstation - vmnet.
 
-%package -n kernel-smp-misc-vmware-workstation
-Summary:	SMP kernel modules for VMware Workstation
-Summary(pl):	Modu³y j±dra SMP dla VMware Workstation
+%package -n kernel-smp-misc-vmmon
+Summary:	SMP kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_rel}
+Requires(post,postun):	/sbin/depmod
+%{?with_dist_kernel:%requires_releq_kernel_smp}
+
+%description -n kernel-smp-misc-vmmon
+SMP kernel modules fov VMware Workstation - vmmon-smp.
+
+%description -n kernel-smp-misc-vmmon -l pl
+Modu³y j±dra SMP dla VMware Workstation - vmmon-smp.
+
+%package -n kernel-smp-misc-vmnet
+Summary:	SMP kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra SMP dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
 Provides:	kernel(vmnet) = %{version}-%{_rel}
 Requires(post,postun):	/sbin/depmod
 %{?with_dist_kernel:%requires_releq_kernel_smp}
 
-%description -n kernel-smp-misc-vmware-workstation
-SMP kernel modules fov VMware Workstation: vmmon-smp and vmnet-smp.
+%description -n kernel-smp-misc-vmnet
+SMP kernel module for VMware Workstation - vmnet-smp.
 
-%description -n kernel-smp-misc-vmware-workstation -l pl
-Modu³y j±dra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
+%description -n kernel-smp-misc-vmnet -l pl
+Modu³y j±dra SMP dla VMware Workstation -  vmnet-smp.
 
 %prep
 %setup -q -n vmware-distrib
@@ -170,7 +207,7 @@ install vmnet-only/vmnet-smp.ko \
 %endif
 cd -
 
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
 
 cp	bin/vmnet-* $RPM_BUILD_ROOT%{_bindir}
 cp	bin/vmware-[!cnsu]* $RPM_BUILD_ROOT%{_bindir}
@@ -199,7 +236,7 @@ EOF
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post init
+%post networking
 /sbin/chkconfig --add vmware
 if [ -r /var/lock/subsys/vmware ]; then
 	/etc/rc.d/init.d/vmware restart >&2
@@ -207,7 +244,7 @@ else
 	echo "Run \"/etc/rc.d/init.d/vmware start\" to start VMvare service."
 fi
 
-%preun init
+%preun networking
 if [ "$1" = "0" ]; then
 	if [ -r /var/lock/subsys/vmware ]; then
 		/etc/rc.d/init.d/vmware stop >&2
@@ -215,22 +252,33 @@ if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del vmware
 fi
 
-%post	-n kernel-misc-vmware-workstation
+%post	-n kernel-misc-vmmon
 %depmod %{_kernel_ver}
 
-%postun -n kernel-misc-vmware-workstation
+%postun -n kernel-misc-vmmon
 %depmod %{_kernel_ver}
 
-%post	-n kernel-smp-misc-vmware-workstation
+%post	-n kernel-misc-vmnet
 %depmod %{_kernel_ver}
 
-%postun -n kernel-smp-misc-vmware-workstation
+%postun -n kernel-misc-vmnet
+%depmod %{_kernel_ver}
+
+%post	-n kernel-smp-misc-vmmon
+%depmod %{_kernel_ver}
+
+%postun -n kernel-smp-misc-vmmon
+%depmod %{_kernel_ver}
+
+%post	-n kernel-smp-misc-vmnet
+%depmod %{_kernel_ver}
+
+%postun -n kernel-smp-misc-vmnet
 %depmod %{_kernel_ver}
 
 %files
 %defattr(644,root,root,755)
 %doc lib/configurator/*.conf
-%attr(755,root,root) %{_bindir}/vmnet*
 %attr(755,root,root) %{_bindir}/vmware
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
@@ -274,16 +322,29 @@ fi
 %defattr(644,root,root,755)
 %{_libdir}/vmware/help*
 
-%files init
+%files networking
 %defattr(644,root,root,755)
 %attr(754,root,root) /etc/rc.d/init.d/vmware
+%attr(755,root,root) %{_bindir}/vmnet-bridge
+%attr(755,root,root) %{_bindir}/vmnet-dhcpd
+%attr(755,root,root) %{_bindir}/vmnet-natd
+%attr(755,root,root) %{_bindir}/vmnet-netifup
+%attr(755,root,root) %{_bindir}/vmnet-sniffer
 
-%files -n kernel-misc-vmware-workstation
+%files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}/misc/*
+/lib/modules/%{_kernel_ver}/misc/vmmon.*
+
+%files -n kernel-misc-vmnet
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vmnet.*
 
 %if %{with smp} && %{with dist_kernel}
-%files	-n kernel-smp-misc-vmware-workstation
+%files	-n kernel-smp-misc-vmmon
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver}smp/misc/*
+/lib/modules/%{_kernel_ver}smp/misc/vmmon-smp.*
+
+%files	-n kernel-smp-misc-vmnet
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}smp/misc/vmnet-smp.*
 %endif
