@@ -8,7 +8,7 @@
 #
 # description:	Manages the services needed to run VMware networking
 #
-# chkconfig:	5 90 8
+# chkconfig:	235 90 8
 #
 # probe:	true
 # hide:		true
