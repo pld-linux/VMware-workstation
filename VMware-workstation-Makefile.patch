@@ -1,0 +1,192 @@
+--- vmware-distrib/vmware-any-any-update53/vmmon-only/Makefile.orig	2004-02-18 18:07:06.000000000 +0100
++++ vmware-distrib/vmware-any-any-update53/vmmon-only/Makefile	2004-03-13 01:07:03.000000000 +0100
+@@ -14,9 +14,9 @@
+ VM_UNAME = $(shell uname -r)
+ 
+ # Header directory for the running kernel
+-HEADER_DIR = /lib/modules/$(VM_UNAME)/build/include
++HEADER_DIR = /usr/src/linux/include
+ 
+-BUILD_DIR = $(HEADER_DIR)/..
++BUILD_DIR = .
+ 
+ DRIVER := vmmon
+ 
+@@ -47,29 +47,6 @@
+ ifeq ($(VM_KBUILD_OUTPUT),)
+ VM_KBUILD_OUTPUT := $(BUILD_DIR)
+ endif
+-ifeq ($(call vm_check_file,$(BUILD_DIR)/Makefile), yes)
+-ifeq ($(call vm_check_file,$(VM_KBUILD_OUTPUT)/.config), no)
+-VM_DUMMY := $(shell echo >&2 '*** Your sources installation is broken:')
+-VM_DUMMY := $(shell echo >&2 '*** $(BUILD_DIR) does not contain .config file')
+-VM_DUMMY := $(shell echo >&2 '*** vmmon/vmnet build may fail, or built vmmon/vmnet may crash.')
+-ifeq ($(call vm_check_file,/boot/vmlinuz.config), yes)
+-VM_DUMMY := $(shell echo >&2 '*** You are apparently use SuSE system. You should copy')
+-VM_DUMMY := $(shell echo >&2 '*** /boot/vmlinuz.config to the $(BUILD_DIR)/.config.')
+-endif
+-VM_DUMMY := $(shell echo >&2)
+-VM_DUMMY := $(shell echo >&2 '*** Hit ENTER to continue, or ^C to stop build.')
+-VM_DUMMY := $(shell read dummy)
+-else
+-ifeq ($(call vm_check_file,$(BUILD_DIR)/Rules.make), yes)
+-ifeq ($(shell if $(GREP) "^PATCHLEVEL = 4$$" $(BUILD_DIR)/Makefile > /dev/null 2>&1; then echo "yes"; fi), yes)
+-VM_KBUILD := 24
+-endif
+-else
+-VM_KBUILD := 26
+-endif
+-endif
+-endif
+-export VM_KBUILD
+ endif
+ 
+ ifndef VM_KBUILD_SHOWN
+@@ -90,9 +67,6 @@
+ 
+ VMCCVER := $(shell $(CC) -dumpversion)
+ 
+-# If there is no version defined, we are in toplevel pass, not yet in kernel makefiles...
+-ifeq ($(VERSION),)
+-
+ ifeq ($(VM_KBUILD), 24)
+ DRIVER_KO := $(DRIVER).o
+ else
+@@ -102,41 +76,13 @@
+ auto-build: $(DRIVER_KO)
+ 	cp -f $< $(SRCROOT)/../$(DRIVER).o
+ 
+-# Pass gcc version down the chain, so we can detect if kernel attempts to use unapproved compiler
+-VM_CCVER := $(VMCCVER)
+-export VM_CCVER
+-VM_CC := $(CC)
+-export VM_CC
+-
+ MAKEOVERRIDES := $(filter-out CC=%,$(MAKEOVERRIDES))
+ 
+ $(DRIVER_KO):
+ 	make -C $(BUILD_DIR) SUBDIRS=$$PWD SRCROOT=$$PWD/$(SRCROOT) modules
+ 
+-else
+-
+-ifneq ($(VM_CCVER), $(VMCCVER))
+-$(warning *** Inappropriate build environment: you wanted to use gcc \
+- version $(VM_CCVER) while kernel attempts to use gcc version $(VMCCVER).)
+-$(error For proper build you'll have to replace $(CC) with symbolic \
+- link to $(VM_CC))
+-endif
+-
+-endif
+-
+ include $(SRCROOT)/Makefile.kernel
+ 
+-ifdef TOPDIR
+-ifeq ($(VM_KBUILD), 24)
+-
+-O_TARGET := $(DRIVER).o
+-
+-obj-y := $($(DRIVER)-y)
+-
+-include $(TOPDIR)/Rules.make
+-endif
+-endif
+-
+ else
+ 
+ include $(SRCROOT)/Makefile.normal
+--- vmware-distrib/vmware-any-any-update53/vmnet-only/Makefile.orig	2004-02-18 18:14:53.000000000 +0100
++++ vmware-distrib/vmware-any-any-update53/vmnet-only/Makefile	2004-03-13 01:08:14.000000000 +0100
+@@ -14,9 +14,9 @@
+ VM_UNAME = $(shell uname -r)
+ 
+ # Header directory for the running kernel
+-HEADER_DIR = /lib/modules/$(VM_UNAME)/build/include
++HEADER_DIR = /usr/src/linux/include
+ 
+-BUILD_DIR = $(HEADER_DIR)/..
++BUILD_DIR = .
+ 
+ DRIVER := vmnet
+ 
+@@ -47,29 +47,6 @@
+ ifeq ($(VM_KBUILD_OUTPUT),)
+ VM_KBUILD_OUTPUT := $(BUILD_DIR)
+ endif
+-ifeq ($(call vm_check_file,$(BUILD_DIR)/Makefile), yes)
+-ifeq ($(call vm_check_file,$(VM_KBUILD_OUTPUT)/.config), no)
+-VM_DUMMY := $(shell echo >&2 '*** Your sources installation is broken:')
+-VM_DUMMY := $(shell echo >&2 '*** $(BUILD_DIR) does not contain .config file')
+-VM_DUMMY := $(shell echo >&2 '*** vmmon/vmnet build may fail, or built vmmon/vmnet may crash.')
+-ifeq ($(call vm_check_file,/boot/vmlinuz.config), yes)
+-VM_DUMMY := $(shell echo >&2 '*** You are apparently use SuSE system. You should copy')
+-VM_DUMMY := $(shell echo >&2 '*** /boot/vmlinuz.config to the $(BUILD_DIR)/.config.')
+-endif
+-VM_DUMMY := $(shell echo >&2)
+-VM_DUMMY := $(shell echo >&2 '*** Hit ENTER to continue, or ^C to stop build.')
+-VM_DUMMY := $(shell read dummy)
+-else
+-ifeq ($(call vm_check_file,$(BUILD_DIR)/Rules.make), yes)
+-ifeq ($(shell if $(GREP) "^PATCHLEVEL = 4$$" $(BUILD_DIR)/Makefile > /dev/null 2>&1; then echo "yes"; fi), yes)
+-VM_KBUILD := 24
+-endif
+-else
+-VM_KBUILD := 26
+-endif
+-endif
+-endif
+-export VM_KBUILD
+ endif
+ 
+ ifndef VM_KBUILD_SHOWN
+@@ -90,9 +67,6 @@
+ 
+ VMCCVER := $(shell $(CC) -dumpversion)
+ 
+-# If there is no version defined, we are in toplevel pass, not yet in kernel makefiles...
+-ifeq ($(VERSION),)
+-
+ ifeq ($(VM_KBUILD), 24)
+ DRIVER_KO := $(DRIVER).o
+ else
+@@ -102,41 +76,13 @@
+ auto-build: $(DRIVER_KO)
+ 	cp -f $< $(SRCROOT)/../$(DRIVER).o
+ 
+-# Pass gcc version down the chain, so we can detect if kernel attempts to use unapproved compiler
+-VM_CCVER := $(VMCCVER)
+-export VM_CCVER
+-VM_CC := $(CC)
+-export VM_CC
+-
+ MAKEOVERRIDES := $(filter-out CC=%,$(MAKEOVERRIDES))
+ 
+ $(DRIVER_KO):
+ 	make -C $(BUILD_DIR) SUBDIRS=$$PWD SRCROOT=$$PWD/$(SRCROOT) modules
+ 
+-else
+-
+-ifneq ($(VM_CCVER), $(VMCCVER))
+-$(warning *** Inappropriate build environment: you wanted to use gcc \
+- version $(VM_CCVER) while kernel attempts to use gcc version $(VMCCVER).)
+-$(error For proper build you'll have to replace $(CC) with symbolic \
+- link to $(VM_CC))
+-endif
+-
+-endif
+-
+ include $(SRCROOT)/Makefile.kernel
+ 
+-ifdef TOPDIR
+-ifeq ($(VM_KBUILD), 24)
+-
+-O_TARGET := $(DRIVER).o
+-
+-obj-y := $($(DRIVER)-y)
+-
+-include $(TOPDIR)/Rules.make
+-endif
+-endif
+-
+ else
+ 
+ include $(SRCROOT)/Makefile.normal
