@@ -164,7 +164,7 @@ Requires(post,postun):	/sbin/depmod
 SMP kernel module for VMware Workstation - vmnet-smp.
 
 %description -n kernel-smp-misc-vmnet -l pl
-Modu³y j±dra SMP dla VMware Workstation -  vmnet-smp.
+Modu³y j±dra SMP dla VMware Workstation - vmnet-smp.
 
 %prep
 %setup -q -n vmware-distrib
@@ -251,7 +251,7 @@ EOF
 
 %if %{with internal_libs}
 cp	bin/vmware $RPM_BUILD_ROOT%{_bindir}/vmware.sh
-cp -r	lib/lib  $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 %endif
 
 %clean
