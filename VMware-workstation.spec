@@ -13,7 +13,7 @@ Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	4.0.5
 %define		_build	6030
-%define		_rel	0.%{_build}.1
+%define		_rel	0.%{_build}.2
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
@@ -167,7 +167,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/vmware/bin
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware-mks
+# warnning: SUID !!!
 %attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
+#
 %{_libdir}/vmware/config
 %{_libdir}/vmware/configurator
 %{_libdir}/vmware/floppies
