@@ -189,8 +189,8 @@ cd -
 cd vmware-any-any-update%{_urel}
 chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
 
-rm update
-%{_cc} -o update 	update.c
+rm -f update
+%{__cc} %{rpmldflags} %{rpmcflags} -o update update.c
 ./update vmx		../lib/bin/vmware-vmx
 ./update vmxdebug	../lib/bin-debug/vmware-vmx
 ./update bridge		../bin/vmnet-bridge
