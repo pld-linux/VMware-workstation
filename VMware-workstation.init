@@ -257,7 +257,6 @@ vmware_start_hostonly() {
 			-s "$vmware_etc_dir"/"$vHostIf"/smb/smb.conf \
 			-f /var/run/"$smbd"-"$vHostIf".pid || exit 1
 		fi
-		exit 0
 }
 
 # Stop the host-only network user service
@@ -277,7 +276,6 @@ vmware_stop_hostonly() {
 		ifconfig "$vHostIf" down || exit 1
 	fi
 	vmware_stop_pidfile /var/run/"$netifup"-"$vHostIf".pid || exit 1
-	exit 0
 }
 
 # See how we were called.
