@@ -3,6 +3,7 @@
 # _without_dist_kernel - without distribution kernel
 # _without_smp         - without UP  kernel modules
 # _without_up          - without SMP kernel modules
+# _with_i_know_its_nfy
 #
 
 %define	_build	4460
@@ -72,6 +73,16 @@ SMP kernel modules fov VMware Workstation: vmmon-smp and vmnet-smp.
 Modu³y j±dra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
 
 %prep
+
+%if %{!?_with_i_know_its_nfy:1}0
+echo '
+	This spec is not finished yet, and resulting package is not usable.
+	Build "--with i_know_its_nfy" to force.
+'
+exit 1
+%endif
+
+
 %setup -q -n vmware-distrib
 tar xf lib/modules/source/vmmon.tar
 tar xf lib/modules/source/vmnet.tar
