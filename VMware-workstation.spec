@@ -23,7 +23,7 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# Source0-md5:	cd52130a4ad753ac9d017cc031038a3c
+# NoSource0-md5:	cd52130a4ad753ac9d017cc031038a3c
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	97bff1ea0d8e96edea8f55115cf9aee0
 Source2:	%{name}.init
