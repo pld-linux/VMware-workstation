@@ -1,10 +1,9 @@
 #
 # TODO:
-#	- Standarize init script
-#	- What about internal libs?
-#	- What about config?
+#	-- Dependencies
 #
 # Conditional build:
+%bcond_with	internal_libs	# internal libs stuff
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	smp		# without SMP kernel modules
 #
@@ -12,7 +11,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	1
+%define		_rel	2
 %define		_urel	56
 
 Summary:	VMware Workstation
@@ -23,19 +22,23 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-NoSource:	0
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Patch0:		%{name}-Makefile.patch
+Patch1:		%{name}-run_script.patch
+NoSource:	0
 URL:		http://www.vmware.com/
+BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_noautoprovfiles %{_libdir}/vmware/lib/.*\.so.*
 
 %description
 VMware Workstation Virtual Platform is a thin software layer that
@@ -166,6 +169,7 @@ cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
 tar xf vmnet.tar
 %patch0 -p0
+%patch1 -p1
 
 %build
 cd vmware-any-any-update%{_urel}
@@ -232,6 +236,16 @@ cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeym
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 
+cat > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations <<EOF
+VM_BINDIR=%{_bindir}
+VM_LIBDIR=%{_libdir}/vmware
+EOF
+
+%if %{with internal_libs}
+cp	bin/vmware $RPM_BUILD_ROOT%{_bindir}/vmware.sh
+cp -r	lib/lib  $RPM_BUILD_ROOT%{_libdir}/vmware
+%endif
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -289,7 +303,9 @@ fi
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet7
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet8
 %dir %{_sysconfdir}/vmware
+%{_sysconfdir}/vmware/locations
 %attr(755,root,root) %{_bindir}/vmware
+%{?with_internal_libs:%attr(755,root,root) %{_bindir}/vmware.sh}
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
 %attr(755,root,root) %{_bindir}/vmware-wizard
@@ -300,6 +316,7 @@ fi
 %{_libdir}/vmware/config
 %{_libdir}/vmware/floppies
 %{_libdir}/vmware/isoimages
+%{?with_internal_libs:%{_libdir}/vmware/lib}
 %{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
 %{_libdir}/vmware/messages/en
