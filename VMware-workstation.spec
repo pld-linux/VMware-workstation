@@ -58,12 +58,16 @@ operacyjnych na jednym zwyk³ym PC, bez repartycjonowania ani
 rebootowania, bez znacznej utraty wydajno¶ci.
 
 %package debug
-Summary:	TODO
+Summary:	VMware debug utility
+Summary(pl):	Narzêdzie VMware do odpluskwiania
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description debug
-TODO.
+VMware debug utility.
+
+%description debug -l pl
+Narzêdzie VMware do odpluskwiania.
 
 %package help
 Summary:	VMware Workstation help files
@@ -79,21 +83,29 @@ VMware Workstation help files.
 Pliki pomocy dla VMware Workstation.
 
 %package networking
-Summary:	TODO
+Summary:	VMware networking utilities
+Summary(pl):	Narzêdzia VMware do obs³ugi sieci
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
 
 %description networking
-TODO.
+VMware networking utilities.
+
+%description networking -l pl
+Narzêdzia VMware do obs³ugi sieci.
 
 %package samba
-Summary:	TODO
+Summary:	VMware SMB utilities
+Summary(pl):	Narzêdzia VMware do SMB
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
 %description samba
-TODO.
+VMware SMB utilities.
+
+%description samba -l pl
+Narzêdzia VMware do SMB.
 
 %package -n kernel-misc-vmmon
 Summary:	Kernel module for VMware Workstation
@@ -280,16 +292,16 @@ fi
 %depmod %{_kernel_ver}
 
 %post	-n kernel-smp-misc-vmmon
-%depmod %{_kernel_ver}
+%depmod %{_kernel_ver}smp
 
 %postun -n kernel-smp-misc-vmmon
-%depmod %{_kernel_ver}
+%depmod %{_kernel_ver}smp
 
 %post	-n kernel-smp-misc-vmnet
-%depmod %{_kernel_ver}
+%depmod %{_kernel_ver}smp
 
 %postun -n kernel-smp-misc-vmnet
-%depmod %{_kernel_ver}
+%depmod %{_kernel_ver}smp
 
 %files
 %defattr(644,root,root,755)
