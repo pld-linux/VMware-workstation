@@ -1,0 +1,156 @@
+--- vmmon-only/include/compat_wait.h.orig	2003-08-06 18:12:16.000000000 +0000
++++ vmmon-only/include/compat_wait.h	2004-04-14 08:50:24.930433888 +0000
+@@ -28,19 +28,7 @@
+ 
+ #endif
+ 
+-/*
+- * The 'struct poll_wqueues' appeared in 2.5.48, when global
+- * /dev/epoll interface was added.  It was backported to the
+- * 2.4.20-wolk4.0s.
+- */
+-
+-#if VMW_HAVE_EPOLL // {
+ #define compat_poll_wqueues struct poll_wqueues
+-#else // } {
+-#define compat_poll_wqueues poll_table
+-#endif // }
+-
+-#if VMW_HAVE_EPOLL // {
+ 
+ /* If prototype does not match, build will abort here */
+ extern void poll_initwait(compat_poll_wqueues *);
+@@ -54,55 +42,4 @@
+    poll_freewait((table)) \
+ )
+ 
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0) // {
+-
+-/* If prototype does not match, build will abort here */
+-extern void poll_initwait(compat_poll_wqueues *);
+-
+-#define compat_poll_initwait(wait, table) ( \
+-   (wait) = (table), \
+-   poll_initwait(wait) \
+-)
+-
+-#define compat_poll_freewait(wait, table) ( \
+-   poll_freewait((table)) \
+-)
+-
+-#else // } {
+-
+-#define compat_poll_initwait(wait, table) ( \
+-   (wait) = (table), /* confuse compiler */ \
+-   (wait) = (poll_table *) __get_free_page(GFP_KERNEL), \
+-   (wait)->nr = 0, \
+-   (wait)->entry = (struct poll_table_entry *)((wait) + 1), \
+-   (wait)->next = NULL \
+-)
+-
+-static INLINE void
+-poll_freewait(poll_table *wait)
+-{
+-   while (wait) {
+-      struct poll_table_entry * entry;
+-      poll_table *old;
+-
+-      entry = wait->entry + wait->nr;
+-      while (wait->nr > 0) {
+-	 wait->nr--;
+-	 entry--;
+-	 remove_wait_queue(entry->wait_address, &entry->wait);
+-	 compat_fput(entry->filp);
+-      }
+-      old = wait;
+-      wait = wait->next;
+-      free_page((unsigned long) old);
+-   }
+-}
+-
+-#define compat_poll_freewait(wait, table) ( \
+-   poll_freewait((wait)) \
+-)
+-
+-#endif // }
+-
+-
+ #endif /* __COMPAT_WAIT_H__ */
+--- vmnet-only/compat_wait.h.orig	2003-08-06 17:49:19.000000000 +0000
++++ vmnet-only/compat_wait.h	2004-04-14 08:50:57.797437344 +0000
+@@ -28,19 +28,7 @@
+ 
+ #endif
+ 
+-/*
+- * The 'struct poll_wqueues' appeared in 2.5.48, when global
+- * /dev/epoll interface was added.  It was backported to the
+- * 2.4.20-wolk4.0s.
+- */
+-
+-#if VMW_HAVE_EPOLL // {
+ #define compat_poll_wqueues struct poll_wqueues
+-#else // } {
+-#define compat_poll_wqueues poll_table
+-#endif // }
+-
+-#if VMW_HAVE_EPOLL // {
+ 
+ /* If prototype does not match, build will abort here */
+ extern void poll_initwait(compat_poll_wqueues *);
+@@ -54,55 +42,4 @@
+    poll_freewait((table)) \
+ )
+ 
+-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2, 4, 0) // {
+-
+-/* If prototype does not match, build will abort here */
+-extern void poll_initwait(compat_poll_wqueues *);
+-
+-#define compat_poll_initwait(wait, table) ( \
+-   (wait) = (table), \
+-   poll_initwait(wait) \
+-)
+-
+-#define compat_poll_freewait(wait, table) ( \
+-   poll_freewait((table)) \
+-)
+-
+-#else // } {
+-
+-#define compat_poll_initwait(wait, table) ( \
+-   (wait) = (table), /* confuse compiler */ \
+-   (wait) = (poll_table *) __get_free_page(GFP_KERNEL), \
+-   (wait)->nr = 0, \
+-   (wait)->entry = (struct poll_table_entry *)((wait) + 1), \
+-   (wait)->next = NULL \
+-)
+-
+-static INLINE void
+-poll_freewait(poll_table *wait)
+-{
+-   while (wait) {
+-      struct poll_table_entry * entry;
+-      poll_table *old;
+-
+-      entry = wait->entry + wait->nr;
+-      while (wait->nr > 0) {
+-	 wait->nr--;
+-	 entry--;
+-	 remove_wait_queue(entry->wait_address, &entry->wait);
+-	 compat_fput(entry->filp);
+-      }
+-      old = wait;
+-      wait = wait->next;
+-      free_page((unsigned long) old);
+-   }
+-}
+-
+-#define compat_poll_freewait(wait, table) ( \
+-   poll_freewait((wait)) \
+-)
+-
+-#endif // }
+-
+-
+ #endif /* __COMPAT_WAIT_H__ */
