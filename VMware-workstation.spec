@@ -2,6 +2,7 @@
 # TODO:
 #	- init script
 #	- SMP kernel module
+#	- help & debug subpkgs
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -11,23 +12,24 @@
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
-Version:	4.0.5
-%define		_build	6030
+Version:	4.5.1
+%define		_build	7568
 %define		_rel	0.%{_build}.3
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{version}-%{_build}.tar.gz
 NoSource:	0
-Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update53.tar.gz
-# Source1-md5:	6e7c462f5dcb8881db5ccc709f43f56f
+%define		_urel	56
+Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
+# Source1-md5:	bde9dbcfbaaaefe3afb5223eaf911e1d
 Patch0:		%{name}-Makefile.patch
 URL:		http://www.vmware.com/
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
-Requires:	kernel(vmmon) = %{version}-%{_build}
-Requires:	kernel(vmnet) = %{version}-%{_build}
+Requires:	kernel(vmmon) = %{version}-%{_rel}
+Requires:	kernel(vmnet) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -43,121 +45,111 @@ pozwalaj帷a na jednoczesne dzia豉nie wielu go軼innych system闚
 operacyjnych na jednym zwyk造m PC, bez repartycjonowania ani
 rebootowania, bez znacznej utraty wydajno軼i.
 
-%package -n kernel-misc-vmware_workstation
+%package -n kernel-misc-vmware-workstation
 Summary:	Kernel modules for VMware Workstation
 Summary(pl):	Modu造 j康ra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
-Provides:	kernel(vmmon) = %{version}-%{_build}
-Provides:	kernel(vmnet) = %{version}-%{_build}
+Provides:	kernel(vmmon) = %{version}-%{_rel}
+Provides:	kernel(vmnet) = %{version}-%{_rel}
 Requires(post,postun):	/sbin/depmod
 %{?with_dist_kernel:%requires_releq_kernel_up}
 
-%description -n kernel-misc-vmware_workstation
+%description -n kernel-misc-vmware-workstation
 Kernel modules for VMware Workstation: vmmon and vmnet.
 
-%description -n kernel-misc-vmware_workstation -l pl
+%description -n kernel-misc-vmware-workstation -l pl
 Modu造 j康ra dla VMware Workstation: vmmon i vmnet.
 
-%package -n kernel-smp-misc-vmware_workstation
+%package -n kernel-smp-misc-vmware-workstation
 Summary:	SMP kernel modules for VMware Workstation
 Summary(pl):	Modu造 j康ra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
-Provides:	kernel(vmmon) = %{version}-%{_build}
-Provides:	kernel(vmnet) = %{version}-%{_build}
+Provides:	kernel(vmmon) = %{version}-%{_rel}
+Provides:	kernel(vmnet) = %{version}-%{_rel}
 Requires(post,postun):	/sbin/depmod
 %{?with_dist_kernel:%requires_releq_kernel_smp}
 
-%description -n kernel-smp-misc-vmware_workstation
+%description -n kernel-smp-misc-vmware-workstation
 SMP kernel modules fov VMware Workstation: vmmon-smp and vmnet-smp.
 
-%description -n kernel-smp-misc-vmware_workstation -l pl
+%description -n kernel-smp-misc-vmware-workstation -l pl
 Modu造 j康ra SMP dla VMware Workstation: vmmon-smp i vmnet-smp.
 
 %prep
 %setup -q -n vmware-distrib
 %setup -qDT -n vmware-distrib -a1
-cd vmware-any-any-update53
+cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
 tar xf vmnet.tar
-cd ..
-%patch0 -p1
+%patch0 -p0
 
 %build
-cd vmware-any-any-update53
+cd vmware-any-any-update%{_urel}
 
-for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
-
-    if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-	exit 1
-    fi
-
-    cd vmmon-only
-    %{__make} clean
-    install -d include/{linux,config}
-    %{__make} -C %{_kernelsrcdir} mrproper \
-        SUBDIRS=$PWD \
-	O=$PWD
-    ln -sf %{_kernelsrcdir}/config-$cfg .config
-    ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-    touch include/linux/MARKER
-    touch includeCheck.h
-    %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-        SUBDIRS=$PWD \
-        O=$PWD \
-        VM_KBUILD=26
-    mv vmmon.ko vmmon-$cfg.ko
-    cd ..
-    
-    cd vmnet-only
-    %{__make} clean
-    install -d include/{linux,config}
-    %{__make} -C %{_kernelsrcdir} mrproper \
-        SUBDIRS=$PWD \
-	O=$PWD
-    ln -sf %{_kernelsrcdir}/config-$cfg .config
-    ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-    touch include/linux/MARKER
-    touch includeCheck.h
-    %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-        SUBDIRS=$PWD \
-        O=$PWD \
-        VM_KBUILD=26
-    mv vmnet.ko vmnet-$cfg.ko
-    cd ..
+for mod in vmmon vmnet ; do
+	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
+		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
+			exit 1
+		fi
+		cd ${mod}-only
+		%{__make} clean
+		install -d include/{linux,config}
+		%{__make} -C %{_kernelsrcdir} mrproper \
+			SUBDIRS=$PWD \
+			O=$PWD
+		ln -sf %{_kernelsrcdir}/config-$cfg .config
+		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h \
+			include/linux/autoconf.h
+		touch include/linux/MARKER
+		touch includeCheck.h
+		%{__make} -C %{_kernelsrcdir} modules \
+			%{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
+			SUBDIRS=$PWD \
+			O=$PWD \
+			VM_KBUILD=26
+		mv ${mod}.ko ${mod}-$cfg.ko
+		cd ..
+	done
 done
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d \
+	$RPM_BUILD_ROOT%{_sysconfdir}/vmware \
 	$RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_sysconfdir}/{,vmware} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/{bin,configurator} \
 	$RPM_BUILD_ROOT%{_mandir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware \
-	$RPM_BUILD_ROOT%{_datadir}/vmware \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}{,smp}/misc \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
 	$RPM_BUILD_ROOT/var/run/vmware
 
-cd vmware-any-any-update53
+cd vmware-any-any-update%{_urel}
 install vmmon-only/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}/misc/vmmon.ko
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
 install vmnet-only/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}/misc/vmnet.ko
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmnet.ko
 %if %{with smp} && %{with dist_kernel}
 install vmmon-only/vmmon-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc/vmmon.ko
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmmon.ko
 install vmnet-only/vmnet-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver_str}smp/misc/vmnet.ko
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
 %endif
 cd ..
 
-cp	bin/* $RPM_BUILD_ROOT%{_bindir}
+cp	bin/vmnet-* $RPM_BUILD_ROOT%{_bindir}
+cp	bin/vmware-[!cnsu]* $RPM_BUILD_ROOT%{_bindir}
+
+cp	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
+
+cp -r	lib/bin/vmware-vmx \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/bin
+
+cp -r	lib/{config,floppies,isoimages,messages,xkeymap} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware
+
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
-
-cp -r	lib/{bin*,config*,floppies,isoimages,lib,licenses,messages,smb,xkeymap} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware
 
 cat << EOF > $RPM_BUILD_ROOT%{_sysconfdir}/vmware/locations
 answer BINDIR %{_bindir}
@@ -172,17 +164,17 @@ EOF
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post	-n kernel-misc-vmware_workstation
-%depmod %{_kernel_ver_str}
+%post	-n kernel-misc-vmware-workstation
+%depmod %{_kernel_ver}
 
-%postun -n kernel-misc-vmware_workstation
-%depmod %{_kernel_ver_str}
+%postun -n kernel-misc-vmware-workstation
+%depmod %{_kernel_ver}
 
-%post	-n kernel-smp-misc-vmware_workstation
-%depmod %{_kernel_ver_str}
+%post	-n kernel-smp-misc-vmware-workstation
+%depmod %{_kernel_ver}
 
-%postun -n kernel-smp-misc-vmware_workstation
-%depmod %{_kernel_ver_str}
+%postun -n kernel-smp-misc-vmware-workstation
+%depmod %{_kernel_ver}
 
 %files
 %defattr(644,root,root,755)
@@ -190,9 +182,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/vmware
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
-%attr(755,root,root) %{_bindir}/vmware-nmbd
 %attr(755,root,root) %{_bindir}/vmware-ping
-%attr(755,root,root) %{_bindir}/vmware-smb*
 %attr(755,root,root) %{_bindir}/vmware-wizard
 %dev (c,10,165) %attr(640,root,root) /dev/vmmon
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet0
@@ -205,31 +195,29 @@ rm -rf $RPM_BUILD_ROOT
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet7
 %dev (c,119,10) %attr(640,root,root) /dev/vmnet8
 %doc doc/*
-%{_sysconfdir}/vmware
+%dir %{_sysconfdir}/vmware
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/locations
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
-%attr(755,root,root) %{_libdir}/vmware/bin/vmware
-%attr(755,root,root) %{_libdir}/vmware/bin/vmware-mks
 # warning: SUID !!!
 %attr(4755,root,root) %{_libdir}/vmware/bin/vmware-vmx
 #
 %{_libdir}/vmware/config
-%{_libdir}/vmware/configurator
 %{_libdir}/vmware/floppies
 %{_libdir}/vmware/isoimages
-%{_libdir}/vmware/lib
-%{_libdir}/vmware/licenses
-%{_libdir}/vmware/smb
+%dir %{_libdir}/vmware/messages
+%{_libdir}/vmware/messages/en
+%lang(ja) %{_libdir}/vmware/messages/ja
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
 %attr(1777,root,root) %dir /var/run/vmware
 
-%files -n kernel-misc-vmware_workstation
+%files -n kernel-misc-vmware-workstation
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver_str}/misc/*
+/lib/modules/%{_kernel_ver}/misc/*
 
 %if %{with smp} && %{with dist_kernel}
-%files	-n kernel-smp-misc-vmware_workstation
+%files	-n kernel-smp-misc-vmware-workstation
 %defattr(644,root,root,755)
-/lib/modules/%{_kernel_ver_str}smp/misc/*
+/lib/modules/%{_kernel_ver}smp/misc/*
 %endif
