@@ -88,28 +88,30 @@ cd ..
 %build
 cd vmware-any-any-update53
 
-for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
-
-    if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-	exit 1
-    fi
-
-    cd vmmon-only
-    %{__make} clean
-    install -d include/{linux,config}
-    %{__make} -C %{_kernelsrcdir} mrproper \
-	SUBDIRS=$PWD \
-	O=$PWD
-    ln -sf %{_kernelsrcdir}/config-$cfg .config
-    ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-    touch include/linux/MARKER
-    touch includeCheck.h
-    %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-	SUBDIRS=$PWD \
-	O=$PWD \
-	VM_KBUILD=26
-    mv vmmon.ko vmmon-$cfg.ko
-    cd ..
+for mod in vmmon vmnet ; do
+	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
+		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
+			exit 1
+		fi
+		cd ${mod}-only
+		%{__make} clean
+		install -d include/{linux,config}
+		%{__make} -C %{_kernelsrcdir} mrproper \
+			SUBDIRS=$PWD \
+			O=$PWD
+		ln -sf %{_kernelsrcdir}/config-$cfg .config
+		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h \
+			include/linux/autoconf.h
+		touch include/linux/MARKER
+		touch includeCheck.h
+		%{__make} -C %{_kernelsrcdir} modules \
+			%{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
+			SUBDIRS=$PWD \
+			O=$PWD \
+			VM_KBUILD=26
+		mv ${mod}.ko ${mod}-$cfg.ko
+		cd ..
+	done
 done
 
 %install
