@@ -12,7 +12,8 @@ Summary:	VMware Workstation
 #Summary(pl):	
 Name:		VMware-workstation
 Version:	4.0.0
-Release:	%{_build}.2
+%define _rel	%{_build}.2
+Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://vmware-chil.www.conxion.com/software/%{name}-%{version}-%{_build}.tar.gz
@@ -34,7 +35,7 @@ of performance.
 
 %package -n kernel-misc-vmware_workstation
 Summary:	Kernel modules fov VMware Workstation
-Release:	%{release}@@%{_kernel_ver_str}
+Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_build}
 Provides:	kernel(vmnet) = %{version}-%{_build}
@@ -48,7 +49,7 @@ Kernel modules fov VMware Workstation: vmmon.o and vmnet.o.
 
 %package -n kernel-smp-misc-vmware_workstation
 Summary:	SMP kernel modules fov VMware Workstation
-Release:	%{release}@@%{_kernel_ver_str}
+Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Provides:	kernel(vmmon) = %{version}-%{_build}
 Provides:	kernel(vmnet) = %{version}-%{_build}
