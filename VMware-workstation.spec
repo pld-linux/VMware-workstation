@@ -1,7 +1,7 @@
 #
 # TODO:
 #	- init script
-#	- kernel modules
+#	- SMP kernel module
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
