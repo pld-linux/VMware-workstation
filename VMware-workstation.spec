@@ -187,6 +187,7 @@ cd -
 
 %build
 cd vmware-any-any-update%{_urel}
+chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
 
 ./update vmx		../lib/bin/vmware-vmx
 ./update vmxdebug	../lib/bin-debug/vmware-vmx
