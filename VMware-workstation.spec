@@ -24,7 +24,7 @@ BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_build}
 Requires:	kernel(vmnet) = %{version}-%{_build}
-%{!?_without_dist_kernel:BuildRequires:         kernel-headers}
+%{!?_without_dist_kernel:BuildRequires:	kernel-headers}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
