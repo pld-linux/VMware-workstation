@@ -2,6 +2,7 @@
 # TODO:
 #	- init script
 #	- SMP kernel module
+#	- /dev/vmnet[0..?]
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -13,7 +14,7 @@ Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	4.0.5
 %define		_build	6030
-%define		_rel	0.%{_build}.2
+%define		_rel	0.%{_build}.3
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
@@ -194,6 +195,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/vmware-ping
 %attr(755,root,root) %{_bindir}/vmware-smb*
 %attr(755,root,root) %{_bindir}/vmware-wizard
+%dev (c,10,165) %attr(640,root,root) /dev/vmmon
 %doc doc/*
 %{_sysconfdir}/vmware
 %dir %{_libdir}/vmware
