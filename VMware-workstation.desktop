@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=VMware Workstation
+Type=Application
+Comment=VMware Workstation
+Comment[pl]=VMware Workstation
+Exec=vmware
+Icon=VMware-workstation.png
+Terminal=false
+Categories=Utility;Emulator;
+Encoding=UTF-8
+# vi: encoding=utf-8
