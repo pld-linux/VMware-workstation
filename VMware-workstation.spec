@@ -12,8 +12,8 @@
 #
 %define		_ver	4.5.2
 %define		_build	8848
-%define		_rel	5
-%define		_urel	84
+%define		_rel	6
+%define		_urel	89
 #
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -23,9 +23,9 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
+# Source0-md5:	cd52130a4ad753ac9d017cc031038a3c
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	e8fb10c1f2fe8ae5a0d573b6551361c8
-# Source1-size:	263743
+# Source1-md5:	97bff1ea0d8e96edea8f55115cf9aee0
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -35,7 +35,6 @@ Source7:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
-Patch3:		%{name}-module_desc.patch
 NoSource:	0
 #Icon:		XPM format req.
 URL:		http://www.vmware.com/
@@ -181,7 +180,6 @@ tar xf vmmon.tar
 tar xf vmnet.tar
 %patch0 -p0
 %patch1 -p0
-%patch3 -p0
 cd -
 %patch2 -p1
 
