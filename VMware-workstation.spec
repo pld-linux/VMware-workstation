@@ -12,7 +12,7 @@
 #
 %define		_ver	4.5.2
 %define		_build	8848
-%define		_rel	4
+%define		_rel	5
 %define		_urel	84
 #
 Summary:	VMware Workstation
@@ -189,6 +189,8 @@ cd -
 cd vmware-any-any-update%{_urel}
 chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
 
+rm update
+%{_cc} -o update 	update.c
 ./update vmx		../lib/bin/vmware-vmx
 ./update vmxdebug	../lib/bin-debug/vmware-vmx
 ./update bridge		../bin/vmnet-bridge
