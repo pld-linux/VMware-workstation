@@ -1,6 +1,7 @@
 #
 # TODO:
-#	-- Dependencies
+#	- Dependencies
+#	- _urel 57
 #
 # Conditional build:
 %bcond_with	internal_libs	# internal libs stuff
@@ -11,7 +12,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	2
+%define		_rel	3
 %define		_urel	56
 
 Summary:	VMware Workstation
@@ -181,12 +182,13 @@ for mod in vmmon vmnet ; do
 		fi
 		cd ${mod}-only
 		%{__make} clean
-		install -d include/{linux,config}
+		install -d include/linux
 		%{__make} -C %{_kernelsrcdir} mrproper SUBDIRS=$PWD O=$PWD
 		ln -sf %{_kernelsrcdir}/config-$cfg .config
 		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 		touch include/linux/MARKER
 		touch includeCheck.h
+		%{__make} -C %{_kernelsrcdir} scripts_basic SUBDIRS=$PWD O=$PWD
 		%{__make} -C %{_kernelsrcdir} modules \
 			%{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
 			SUBDIRS=$PWD O=$PWD \
