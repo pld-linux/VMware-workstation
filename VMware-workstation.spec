@@ -295,16 +295,6 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc doc/* lib/configurator/vmnet-{dhcpd,nat}.conf
-%dev (c,10,165) %attr(640,root,root) /dev/vmmon
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet0
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet1
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet2
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet3
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet4
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet5
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet6
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet7
-%dev (c,119,10) %attr(640,root,root) /dev/vmnet8
 %dir %{_sysconfdir}/vmware
 %{_sysconfdir}/vmware/locations
 %attr(755,root,root) %{_bindir}/vmware
