@@ -3,9 +3,9 @@
 # Copyright 1998 VMware, Inc.  All rights reserved.
 #
 
-# vmware:	Manages the services needed to run VMware software
+# vmnet:	Manages the services needed to run VMware networking
 #
-# description:	Manages the services needed to run VMware software
+# description:	Manages the services needed to run VMware networking
 #
 # chkconfig:	5 90 8
 #
