@@ -296,7 +296,7 @@ case "$1" in
 		/sbin/modprobe $vnet
 		[ "$?" -eq 0 ] && ok || fail
 		vHubNr=0
-		while [ $vHubNr -lt 8 ]; do
+		while [ $vHubNr -lt 9 ]; do
 			eval 'interface="$VNET_'"$vHubNr"'_INTERFACE"'
 			eval 'hostaddr="$VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
 			eval 'netmask="$VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
@@ -322,7 +322,7 @@ case "$1" in
 					cd "$VM_BINDIR" && "$VM_BINDIR"/"$natd" \
 					  -d /var/run/"$natd"-"$vHubNr".pid \
 					  -m /var/run/"$natd"-"$vHubNr".mac \
-					  -c "$vmware_etc_dir"/vmnet"$vHubNr"/nat/nat.conf
+					  -c "$vmware_etc_dir"/vmnet"$vHubNr"/nat/nat.conf >/dev/null 2>&1
 					[ "$?" -eq 0 ] && ok || fail
 				fi
 			fi
@@ -348,7 +348,7 @@ case "$1" in
 		# NB: must kill off processes using vmnet before
 		#     unloading module
 		vHubNr=0
-		while [ $vHubNr -lt 8 ]; do
+		while [ $vHubNr -lt 9 ]; do
 			eval 'interface="$VNET_'"$vHubNr"'_INTERFACE"'
 			eval 'hostaddr="$VNET_'"$vHubNr"'_HOSTONLY_HOSTADDR"'
 			eval 'netmask="$VNET_'"$vHubNr"'_HOSTONLY_NETMASK"'
