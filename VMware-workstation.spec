@@ -169,6 +169,7 @@ cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
 tar xf vmnet.tar
 %patch0 -p0
+cd -
 %patch1 -p1
 
 %build
