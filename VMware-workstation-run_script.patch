@@ -1,0 +1,187 @@
+--- vmware-distrib/bin/vmware.orig	2004-03-10 00:01:31.000000000 +0100
++++ vmware-distrib/bin/vmware	2004-04-06 13:17:34.813580480 +0200
+@@ -6,163 +6,9 @@
+ # the shared libraries it needs. If a shared library is not available from any
+ # of the standard system-wide locations, we provide it from the VMware package
+ # location. --hpreg
+-
+-# BEGINNING_OF_DB_DOT_SH
+-#!/bin/sh
+-
+-#
+-# Manage an installer database
+-#
+-
+-# Add an answer to a database in memory
+-db_answer_add() {
+-  local dbvar="$1" # IN/OUT
+-  local id="$2"    # IN
+-  local value="$3" # IN
+-  local answers
+-  local i
+-
+-  eval "$dbvar"'_answer_'"$id"'="$value"'
+-
+-  eval 'answers="$'"$dbvar"'_answers"'
+-  # There is no double quote around $answers on purpose
+-  for i in $answers; do
+-    if [ "$i" = "$id" ]; then
+-      return
+-    fi
+-  done
+-  answers="$answers"' '"$id"
+-  eval "$dbvar"'_answers="$answers"'
+-}
+-
+-# Remove an answer from a database in memory
+-db_answer_remove() {
+-  local dbvar="$1" # IN/OUT
+-  local id="$2"    # IN
+-  local new_answers
+-  local answers
+-  local i
+-
+-  eval 'unset '"$dbvar"'_answer_'"$id"
+-
+-  new_answers=''
+-  eval 'answers="$'"$dbvar"'_answers"'
+-  # There is no double quote around $answers on purpose
+-  for i in $answers; do
+-    if [ "$i" != "$id" ]; then
+-      new_answers="$new_answers"' '"$i"
+-    fi
+-  done
+-  eval "$dbvar"'_answers="$new_answers"'
+-}
+-
+-# Load all answers from a database on stdin to memory (<dbvar>_answer_*
+-# variables)
+-db_load_from_stdin() {
+-  local dbvar="$1" # OUT
+-
+-  eval "$dbvar"'_answers=""'
+-
+-  # read doesn't support -r on FreeBSD 3.x. For this reason, the following line
+-  # is patched to remove the -r in case of FreeBSD tools build. So don't make
+-  # changes to it. -- Jeremy Bar
+-  while read -r action p1 p2; do
+-    if [ "$action" = 'answer' ]; then
+-      db_answer_add "$dbvar" "$p1" "$p2"
+-    elif [ "$action" = 'remove_answer' ]; then
+-      db_answer_remove "$dbvar" "$p1"
+-    fi
+-  done
+-}
+-
+-# Load all answers from a database on disk to memory (<dbvar>_answer_*
+-# variables)
+-db_load() {
+-  local dbvar="$1"  # OUT
+-  local dbfile="$2" # IN
+-
+-  db_load_from_stdin "$dbvar" < "$dbfile"
+-}
+-
+-# Iterate through all answers in a database in memory, calling <func> with
+-# id/value pairs and the remaining arguments to this function
+-db_iterate() {
+-  local dbvar="$1" # IN
+-  local func="$2"  # IN
+-  shift 2
+-  local answers
+-  local i
+-  local value
+-
+-  eval 'answers="$'"$dbvar"'_answers"'
+-  # There is no double quote around $answers on purpose
+-  for i in $answers; do
+-    eval 'value="$'"$dbvar"'_answer_'"$i"'"'
+-    "$func" "$i" "$value" "$@"
+-  done
+-}
+-
+-# If it exists in memory, remove an answer from a database (disk and memory)
+-db_remove_answer() {
+-  local dbvar="$1"  # IN/OUT
+-  local dbfile="$2" # IN
+-  local id="$3"     # IN
+-  local answers
+-  local i
+-
+-  eval 'answers="$'"$dbvar"'_answers"'
+-  # There is no double quote around $answers on purpose
+-  for i in $answers; do
+-    if [ "$i" = "$id" ]; then
+-      echo 'remove_answer '"$id" >> "$dbfile"
+-      db_answer_remove "$dbvar" "$id"
+-      return
+-    fi
+-  done
+-}
+-
+-# Add an answer to a database (disk and memory)
+-db_add_answer() {
+-  local dbvar="$1"  # IN/OUT
+-  local dbfile="$2" # IN
+-  local id="$3"     # IN
+-  local value="$4"  # IN
+-
+-  db_remove_answer "$dbvar" "$dbfile" "$id"
+-  echo 'answer '"$id"' '"$value" >> "$dbfile"
+-  db_answer_add "$dbvar" "$id" "$value"
+-}
+-
+-# Add a file to a database on disk
+-# 'file' is the file to put in the database (it may not exist on the disk)
+-# 'tsfile' is the file to get the timestamp from, '' if no timestamp
+-db_add_file() {
+-  local dbfile="$1" # IN
+-  local file="$2"   # IN
+-  local tsfile="$3" # IN
+-  local date
+-
+-  if [ "$tsfile" = '' ]; then
+-    echo 'file '"$file" >> "$dbfile"
+-  else
+-    date=`date -r "$tsfile" '+%s' 2> /dev/null`
+-    if [ "$date" != '' ]; then
+-      date=' '"$date"
+-    fi
+-    echo 'file '"$file$date" >> "$dbfile"
+-  fi
+-}
+-
+-# Add a directory to a database on disk
+-db_add_dir() {
+-  local dbfile="$1" # IN
+-  local dir="$2"    # IN
+-
+-  echo 'directory '"$dir" >> "$dbfile"
+-}
+ # END_OF_DB_DOT_SH
+ 
+-db_load 'vm_db' '/etc/vmware/locations'
++. /etc/vmware/locations
+ 
+ vm_append_libs() {
+    local path
+@@ -174,9 +20,9 @@
+    while read -r lib dummy status; do
+       if [ "$status" = 'not found' ]; then
+          if [ "$path" = '' ]; then
+-            path="$vm_db_answer_LIBDIR"'/lib/'"$lib"
++            path="$VM_LIBDIR"'/lib/'"$lib"
+          else
+-            path="$path"':'"$vm_db_answer_LIBDIR"'/lib/'"$lib"
++            path="$path"':'"$VM_LIBDIR"'/lib/'"$lib"
+          fi
+       fi
+    done
+@@ -184,6 +30,6 @@
+    echo "$path"
+ }
+ 
+-binary="$vm_db_answer_LIBDIR"'/bin/vmware'
++binary="$VM_BINDIR"'/bin/vmware'
+ export LD_LIBRARY_PATH=`LANGUAGE=C LANG=C ldd "$binary" | vm_append_libs`
+ exec "$binary" "$@"
