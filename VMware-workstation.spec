@@ -20,6 +20,7 @@ Source0:	http://vmware-chil.www.conxion.com/software/%{name}-%{version}-%{_build
 URL:		http://www.vmware.com/
 NoSource:	0
 BuildRequires:	rpm-perlprov
+BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_build}
 Requires:	kernel(vmnet) = %{version}-%{_build}
@@ -142,16 +143,16 @@ gunzip $RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 rm -rf $RPM_BUILD_ROOT
 
 %post	-n kernel-misc-vmware_workstation
-/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+%depmod %{_kernel_ver}
 
 %postun -n kernel-misc-vmware_workstation
-/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+%depmod %{_kernel_ver}
 
 %post	-n kernel-smp-misc-vmware_workstation
-/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+%depmod %{_kernel_ver}
 
 %postun -n kernel-smp-misc-vmware_workstation
-/sbin/depmod -a %{!?_without_dist_kernel:-F /boot/System.map-%{_kernel_ver} }%{_kernel_ver}
+%depmod %{_kernel_ver}
 
 %files
 %defattr(644,root,root,755)
