@@ -311,7 +311,7 @@ case "$1" in
 				eval 'samba="$VNET_'"$vHubNr"'_SAMBA"'
 				msg_starting 'Host-only networking on /dev/vmnet'"$vHubNr"
 				busy
-				daemon vmware_start_hostonly "$vHubNr" 'vmnet'"$vHubNr" "$hostaddr" \
+				vmware_start_hostonly "$vHubNr" 'vmnet'"$vHubNr" "$hostaddr" \
 				  "$netmask" 'yes' "$samba"
 				[ "$?" -eq 0 ] && ok || fail
 				eval 'nat="$VNET_'"$vHubNr"'_NAT"'
