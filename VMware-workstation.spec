@@ -198,25 +198,25 @@ mkdir built
 cp -a vmmon-only vmmon-only.clean
 cp -a vmnet-only vmnet-only.clean
 for mod in vmmon vmnet ; do
-    for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
-        if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-	    exit 1
-	fi
-	rm -rf $mod-only
-	cp -a $mod-only.clean $mod-only
-	cd $mod-only
-	install -d include/{linux,config}
-	touch include/config/MARKER
-        ln -sf %{_kernelsrcdir}/config-$cfg .config
-        ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
-        %{__make} -C %{_kernelsrcdir} modules \
-	    VMWARE_VER=VME_V452 \
-    	    M=$PWD O=$PWD \
-	    VM_KBUILD=26
-        mv -f $mod.ko ../built/$mod-$cfg.ko
-	cd -
-    done
+	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
+		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
+			exit 1
+		fi
+		rm -rf $mod-only
+		cp -a $mod-only.clean $mod-only
+		cd $mod-only
+		install -d include/{linux,config}
+		touch include/config/MARKER
+		ln -sf %{_kernelsrcdir}/config-$cfg .config
+		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
+		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
+		%{__make} -C %{_kernelsrcdir} modules \
+			VMWARE_VER=VME_V452 \
+			M=$PWD O=$PWD \
+			VM_KBUILD=26
+		mv -f $mod.ko ../built/$mod-$cfg.ko
+		cd -
+	done
 done
 cd -
 
