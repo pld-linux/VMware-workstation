@@ -7,13 +7,14 @@
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	smp		# without SMP kernel modules
 #
+%define         no_install_post_compress_modules 1
 %include	/usr/lib/rpm/macros.perl
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	4.0.5
 %define		_build	6030
-%define		_rel	0.%{_build}.3
+%define		_rel	0.%{_build}.4
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
