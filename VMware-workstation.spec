@@ -215,7 +215,7 @@ install vmnet-only/vmnet-smp.ko \
 %endif
 cd -
 
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmware
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 
 cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
 
@@ -244,19 +244,19 @@ EOF
 rm -rf $RPM_BUILD_ROOT
 
 %post networking
-/sbin/chkconfig --add vmware
-if [ -r /var/lock/subsys/vmware ]; then
-	/etc/rc.d/init.d/vmware restart >&2
+/sbin/chkconfig --add vmnet
+if [ -r /var/lock/subsys/vmnet ]; then
+	/etc/rc.d/init.d/vmnet restart >&2
 else
-	echo "Run \"/etc/rc.d/init.d/vmware start\" to start VMvare service."
+	echo "Run \"/etc/rc.d/init.d/vmnet start\" to start VMvare networking service."
 fi
 
 %preun networking
 if [ "$1" = "0" ]; then
-	if [ -r /var/lock/subsys/vmware ]; then
-		/etc/rc.d/init.d/vmware stop >&2
+	if [ -r /var/lock/subsys/vmnet ]; then
+		/etc/rc.d/init.d/vmnet stop >&2
 	fi
-	/sbin/chkconfig --del vmware
+	/sbin/chkconfig --del vmnet
 fi
 
 %post	-n kernel-misc-vmmon
@@ -330,7 +330,7 @@ fi
 
 %files networking
 %defattr(644,root,root,755)
-%attr(754,root,root) /etc/rc.d/init.d/vmware
+%attr(754,root,root) /etc/rc.d/init.d/vmnet
 %attr(755,root,root) %{_bindir}/vmnet-bridge
 %attr(755,root,root) %{_bindir}/vmnet-dhcpd
 %attr(755,root,root) %{_bindir}/vmnet-natd
