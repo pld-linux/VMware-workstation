@@ -3,9 +3,15 @@
 # Copyright 1998 VMware, Inc.  All rights reserved.
 #
 
-# chkconfig: 3 90 08
-# description: Manages the services needed to run VMware software
+# vmware:	Manages the services needed to run VMware software
 #
+# description:	Manages the services needed to run VMware software
+#
+# chkconfig:	5 90 8
+#
+# probe:	true
+# hide:		true
+
 
 . /etc/rc.d/init.d/functions
 
