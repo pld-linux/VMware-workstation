@@ -7,7 +7,7 @@
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	smp		# without SMP kernel modules
 #
-%define         no_install_post_compress_modules 1
+%define		no_install_post_compress_modules	1
 %include	/usr/lib/rpm/macros.perl
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -98,33 +98,33 @@ for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}
     %{__make} clean
     install -d include/{linux,config}
     %{__make} -C %{_kernelsrcdir} mrproper \
-        SUBDIRS=$PWD \
+	SUBDIRS=$PWD \
 	O=$PWD
     ln -sf %{_kernelsrcdir}/config-$cfg .config
     ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
     touch include/linux/MARKER
     touch includeCheck.h
     %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-        SUBDIRS=$PWD \
-        O=$PWD \
-        VM_KBUILD=26
+	SUBDIRS=$PWD \
+	O=$PWD \
+	VM_KBUILD=26
     mv vmmon.ko vmmon-$cfg.ko
     cd ..
-    
+
     cd vmnet-only
     %{__make} clean
     install -d include/{linux,config}
     %{__make} -C %{_kernelsrcdir} mrproper \
-        SUBDIRS=$PWD \
+	SUBDIRS=$PWD \
 	O=$PWD
     ln -sf %{_kernelsrcdir}/config-$cfg .config
     ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
     touch include/linux/MARKER
     touch includeCheck.h
     %{__make} -C %{_kernelsrcdir} modules %{?with_smp:CPPFLAGS=\"-D__SMP__ SUPPORT_SMP=1\"} \
-        SUBDIRS=$PWD \
-        O=$PWD \
-        VM_KBUILD=26
+	SUBDIRS=$PWD \
+	O=$PWD \
+	VM_KBUILD=26
     mv vmnet.ko vmnet-$cfg.ko
     cd ..
 done
