@@ -11,7 +11,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	1
+%define		_rel	5
 %define		_urel	68
 
 Summary:	VMware Workstation
