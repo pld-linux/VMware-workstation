@@ -12,8 +12,8 @@
 #
 %define		_ver	4.5.2
 %define		_build	8848
-%define		_rel	3
-%define		_urel	83
+%define		_rel	3.1
+%define		_urel	84
 #
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -24,7 +24,8 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	228db8b26c4231ff4b07254ad59883e2
+# Source1-md5:	e8fb10c1f2fe8ae5a0d573b6551361c8
+# Source1-size:	263743
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -184,6 +185,12 @@ cd -
 
 %build
 cd vmware-any-any-update%{_urel}
+
+./update vmx		../lib/bin/vmware-vmx
+./update vmxdebug	../lib/bin-debug/vmware-vmx
+./update bridge		../bin/vmnet-bridge
+
+rm -rf built
 mkdir built
 cp -a vmmon-only vmmon-only.clean
 cp -a vmnet-only vmnet-only.clean
@@ -201,6 +208,7 @@ for mod in vmmon vmnet ; do
         ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 	ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
         %{__make} -C %{_kernelsrcdir} modules \
+	    VMWARE_VER=VME_V452 \
     	    M=$PWD O=$PWD \
 	    VM_KBUILD=26
         mv -f $mod.ko ../built/$mod-$cfg.ko
