@@ -1,6 +1,7 @@
 #
 # TODO:
 #	- Dependencies
+#	- add icon (SOURCES/VMware-workstation.png)
 #
 # Conditional build:
 %bcond_with	internal_libs	# internal libs stuff
@@ -11,7 +12,7 @@
 
 %define		_ver	4.5.1
 %define		_build	7568
-%define		_rel	5
+%define		_rel	6
 %define		_urel	68
 
 Summary:	VMware Workstation
@@ -30,6 +31,7 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
 NoSource:	0
+Icon:		%{name}.png
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
@@ -230,6 +232,8 @@ cd -
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/vmware/vmnet.conf
+install %{name}.png $RPM_BUILD_ROOT%{_pixmapsdir}/%{name}.png
+install *.desktop $RPM_BUILD_ROOT%{_desktopdir}
 
 cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
 
@@ -322,6 +326,7 @@ fi
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
 %attr(1777,root,root) %dir /var/run/vmware
+%{_pixmapsdir}/*.png
 
 %files debug
 %defattr(644,root,root,755)
