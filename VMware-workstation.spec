@@ -1,7 +1,7 @@
 #
 # TODO:
 #	- Dependencies
-#	- add icon (SOURCES/VMware-workstation.png)
+#	- icon (SOURCES/VMware-workstation.png) and .desktop
 #
 # Conditional build:
 %bcond_with	internal_libs	# internal libs stuff
@@ -32,7 +32,7 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
 NoSource:	0
-Icon:		VMware-workstation.png
+#Icon:		VMware-workstation.png
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
