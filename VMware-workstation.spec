@@ -36,7 +36,7 @@ BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.118
 BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_rel}
-%{?with_dist_kernel:BuildRequires:	kernel-headers}
+%{?with_dist_kernel:BuildRequires:	kernel-module-build}
 %{?with_dist_kernel:BuildRequires:	kernel-doc}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
