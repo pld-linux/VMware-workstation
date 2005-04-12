@@ -10,10 +10,10 @@
 #
 %include	/usr/lib/rpm/macros.perl
 #
-%define		_ver	4.5.2
-%define		_build	8848
-%define		_rel	6
-%define		_urel	89
+%define		_ver	5.0.0
+%define		_build	13124
+%define		_rel	1
+%define		_urel	90
 #
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -23,9 +23,9 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	cd52130a4ad753ac9d017cc031038a3c
+# NoSource0-md5:	91821fc2649749911f0e2d0ca37b3eb8
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	97bff1ea0d8e96edea8f55115cf9aee0
+# Source1-md5:	b8f6498f5275dc8ef3ea2d2e17061ede
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -248,7 +248,7 @@ install built/vmnet-smp.ko \
 cd -
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/vmware/vmnet.conf
+install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
 install %{SOURCE4} $RPM_BUILD_ROOT%{_pixmapsdir}
 install %{SOURCE5} $RPM_BUILD_ROOT%{_desktopdir}
 install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
@@ -363,7 +363,7 @@ fi
 
 %files networking
 %defattr(644,root,root,755)
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet.conf
 %attr(754,root,root) /etc/rc.d/init.d/vmnet
 %attr(755,root,root) %{_bindir}/vmnet-bridge
 %attr(755,root,root) %{_bindir}/vmnet-dhcpd
@@ -372,9 +372,9 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
 %attr(755,root,root) %{_bindir}/vmware-ping
 %{_sysconfdir}/vmware/vmnet8
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
-%verify(not size mtime md5) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+%verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 
 %files samba
 %defattr(644,root,root,755)
