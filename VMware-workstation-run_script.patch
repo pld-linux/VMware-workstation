@@ -1,10 +1,9 @@
---- vmware-distrib/bin/vmware.orig	2004-03-10 00:01:31.000000000 +0100
-+++ vmware-distrib/bin/vmware	2004-04-06 13:17:34.813580480 +0200
-@@ -6,163 +6,9 @@
- # the shared libraries it needs. If a shared library is not available from any
- # of the standard system-wide locations, we provide it from the VMware package
- # location. --hpreg
--
+--- vmware-distrib/bin/vmware	2005-03-23 05:54:18.000000000 -0600
++++ vmware-distrib.new/bin/vmware	2005-04-13 09:35:12.000000000 -0500
+@@ -8,162 +8,7 @@
+ # the VMware software is installed. --hpreg
+ #
+ 
 -# BEGINNING_OF_DB_DOT_SH
 -#!/bin/sh
 -
@@ -158,30 +157,10 @@
 -
 -  echo 'directory '"$dir" >> "$dbfile"
 -}
- # END_OF_DB_DOT_SH
- 
+-# END_OF_DB_DOT_SH
+-
 -db_load 'vm_db' '/etc/vmware/locations'
 +. /etc/vmware/locations
  
- vm_append_libs() {
-    local path
-@@ -174,9 +20,9 @@
-    while read -r lib dummy status; do
-       if [ "$status" = 'not found' ]; then
-          if [ "$path" = '' ]; then
--            path="$vm_db_answer_LIBDIR"'/lib/'"$lib"
-+            path="$VM_LIBDIR"'/lib/'"$lib"
-          else
--            path="$path"':'"$vm_db_answer_LIBDIR"'/lib/'"$lib"
-+            path="$path"':'"$VM_LIBDIR"'/lib/'"$lib"
-          fi
-       fi
-    done
-@@ -184,6 +30,6 @@
-    echo "$path"
- }
- 
--binary="$vm_db_answer_LIBDIR"'/bin/vmware'
-+binary="$VM_BINDIR"'/bin/vmware'
- export LD_LIBRARY_PATH=`LANGUAGE=C LANG=C ldd "$binary" | vm_append_libs`
- exec "$binary" "$@"
+ if [ "vmware" = "vmware-console" ]; then
+    vmware_config_name="vmware-config-console"
