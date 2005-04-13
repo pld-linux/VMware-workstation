@@ -39,11 +39,10 @@ NoSource:	0
 #Icon:		XPM format req.
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
-BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.153
-BuildRequires:	%{kgcc_package}
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
+BuildRequires:	rpm-perlprov
+BuildRequires:	rpmbuild(macros) >= 1.153
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_noautoprovfiles %{_libdir}/vmware/lib/.*\.so.*
@@ -115,10 +114,13 @@ Summary:	Kernel module for VMware Workstation
 Summary(pl):	Modu³ j±dra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
-Provides:	kernel(vmmon) = %{version}-%{_rel}
-Requires:	dev >= 2.9.0-7
 Requires(post,postun):	/sbin/depmod
-%{?with_dist_kernel:%requires_releq_kernel_up}
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_up
+Requires(postun):	%releq_kernel_up
+%endif
+Provides:	kernel(vmmon) = %{version}-%{_rel}
 
 %description -n kernel-misc-vmmon
 Kernel modules for VMware Workstation - vmmon.
@@ -131,10 +133,13 @@ Summary:	Kernel module for VMware Workstation
 Summary(pl):	Modu³ j±dra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
-Provides:	kernel(vmnet) = %{version}-%{_rel}
-Requires:	dev >= 2.9.0-7
 Requires(post,postun):	/sbin/depmod
-%{?with_dist_kernel:%requires_releq_kernel_up}
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_up
+Requires(postun):	%releq_kernel_up
+%endif
+Provides:	kernel(vmnet) = %{version}-%{_rel}
 
 %description -n kernel-misc-vmnet
 Kernel modules for VMware Workstation - vmnet.
@@ -147,9 +152,13 @@ Summary:	SMP kernel module for VMware Workstation
 Summary(pl):	Modu³ j±dra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
-Provides:	kernel(vmmon) = %{version}-%{_rel}
 Requires(post,postun):	/sbin/depmod
-%{?with_dist_kernel:%requires_releq_kernel_smp}
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_smp
+Requires(postun):	%releq_kernel_smp
+%endif
+Provides:	kernel(vmmon) = %{version}-%{_rel}
 
 %description -n kernel-smp-misc-vmmon
 SMP kernel modules fov VMware Workstation - vmmon-smp.
@@ -162,9 +171,13 @@ Summary:	SMP kernel module for VMware Workstation
 Summary(pl):	Modu³ j±dra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
-Provides:	kernel(vmnet) = %{version}-%{_rel}
 Requires(post,postun):	/sbin/depmod
-%{?with_dist_kernel:%requires_releq_kernel_smp}
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_smp
+Requires(postun):	%releq_kernel_smp
+%endif
+Provides:	kernel(vmnet) = %{version}-%{_rel}
 
 %description -n kernel-smp-misc-vmnet
 SMP kernel module for VMware Workstation - vmnet-smp.
