@@ -200,11 +200,13 @@ cd -
 cd vmware-any-any-update%{_urel}
 chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
 
+%if 0
 rm -f update
 %{__cc} %{rpmldflags} %{rpmcflags} -o update update.c
 ./update vmx		../lib/bin/vmware-vmx
 ./update vmxdebug	../lib/bin-debug/vmware-vmx
 ./update bridge		../bin/vmnet-bridge
+%endif
 
 rm -rf built
 mkdir built
@@ -224,7 +226,7 @@ for mod in vmmon vmnet ; do
 		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
 		%{__make} -C %{_kernelsrcdir} modules \
-			VMWARE_VER=VME_V452 \
+			VMWARE_VER=VME_V5 \
 			M=$PWD O=$PWD \
 			VM_KBUILD=26
 		mv -f $mod.ko ../built/$mod-$cfg.ko
