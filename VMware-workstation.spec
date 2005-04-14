@@ -275,7 +275,7 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
-install	lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
 #cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeymap} \
 cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,xkeymap} \
@@ -290,11 +290,11 @@ VM_LIBDIR=%{_libdir}/vmware
 EOF
 
 %if %{with internal_libs}
-install	bin/vmware $RPM_BUILD_ROOT%{_bindir}
-install	lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+install bin/vmware $RPM_BUILD_ROOT%{_bindir}
+install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 %else
-install	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
+install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 %endif
 
 %clean
