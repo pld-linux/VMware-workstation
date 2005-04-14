@@ -387,7 +387,7 @@ fi
 %attr(755,root,root) %{_bindir}/vmnet-netifup
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
 %attr(755,root,root) %{_bindir}/vmware-ping
-%{_sysconfdir}/vmware/vmnet8
+%dir %{_sysconfdir}/vmware/vmnet8
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
 %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
