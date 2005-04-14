@@ -36,13 +36,13 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-compat.patch
 Patch2:		%{name}-run_script.patch
 NoSource:	0
-#Icon:		XPM format req.
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.153
+BuildRequires:	sed >= 4.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_noautoprovfiles %{_libdir}/vmware/lib/.*\.so.*
@@ -197,6 +197,8 @@ cd -
 %patch2 -p1
 
 %build
+sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
+
 cd vmware-any-any-update%{_urel}
 chmod u+w ../lib/bin/vmware-vmx ../lib/bin-debug/vmware-vmx ../bin/vmnet-bridge
 
@@ -233,7 +235,7 @@ for mod in vmmon vmnet ; do
 		cd -
 	done
 done
-cd -
+cd ..
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -272,12 +274,8 @@ install %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 
-cp	bin/*-* $RPM_BUILD_ROOT%{_bindir}
-
-cp	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
-
-cp -r	lib/bin/vmware-vmx \
-	$RPM_BUILD_ROOT%{_libdir}/vmware/bin
+install bin/*-* $RPM_BUILD_ROOT%{_bindir}
+install	lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
 #cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeymap} \
 cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,xkeymap} \
@@ -292,8 +290,11 @@ VM_LIBDIR=%{_libdir}/vmware
 EOF
 
 %if %{with internal_libs}
-cp	bin/vmware $RPM_BUILD_ROOT%{_bindir}/vmware.sh
+install	bin/vmware $RPM_BUILD_ROOT%{_bindir}
+install	lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
+%else
+install	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 %endif
 
 %clean
@@ -345,7 +346,6 @@ fi
 %dir %{_sysconfdir}/vmware
 %{_sysconfdir}/vmware/locations
 %attr(755,root,root) %{_bindir}/vmware
-%{?with_internal_libs:%attr(755,root,root) %{_bindir}/vmware.sh}
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
 %attr(755,root,root) %{_bindir}/vmware-vdiskmanager
@@ -356,7 +356,11 @@ fi
 %{_libdir}/vmware/config
 %{_libdir}/vmware/floppies
 %{_libdir}/vmware/isoimages
-%{?with_internal_libs:%{_libdir}/vmware/lib}
+%if %{with internal_libs}
+%attr(755,root,root) %{_libdir}/vmware/bin/vmware
+%{_libdir}/vmware/lib
+%attr(755,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
+%endif
 %{_libdir}/vmware/licenses
 %dir %{_libdir}/vmware/messages
 %{_libdir}/vmware/messages/en
