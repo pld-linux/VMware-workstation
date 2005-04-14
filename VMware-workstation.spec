@@ -279,7 +279,8 @@ cp	lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 cp -r	lib/bin/vmware-vmx \
 	$RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
-cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeymap} \
+#cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeymap} \
+cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
@@ -391,6 +392,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
 %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 
+%if 0
 %files samba
 %defattr(644,root,root,755)
 %doc lib/configurator/vmnet-smb.conf
@@ -399,6 +401,7 @@ fi
 %attr(755,root,root) %{_bindir}/vmware-smbpasswd
 %attr(755,root,root) %{_bindir}/vmware-smbpasswd.bin
 %{_libdir}/vmware/smb
+%endif
 
 %files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
