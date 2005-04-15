@@ -300,6 +300,10 @@ case "$1" in
 	# Try to load parport_pc. Failure is allowed as it does not exist
 	# on kernels 2.0
 	/sbin/modprobe parport_pc >/dev/null 2>&1
+	msg_starting 'Virtual machine monitor'
+	busy
+	/sbin/modprobe $driver
+	[ "$?" -eq "0" ] && ok || fail
 	if [ "$VM_NETWORKING" = 'yes' ]; then
 		msg_starting 'Virtual ethernet'
 		busy
