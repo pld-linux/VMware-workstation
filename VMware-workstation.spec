@@ -90,6 +90,7 @@ Summary(pl):	Narzêdzia VMware do obs³ugi sieci
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
+Obsoletes:	VMware-workstation-samba
 
 %description networking
 VMware networking utilities.
