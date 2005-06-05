@@ -43,6 +43,7 @@ Requires:	kernel(vmmon) = %{version}-%{_rel}
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.153
 BuildRequires:	sed >= 4.0
+Requires:	libgnomecanvasmm
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
