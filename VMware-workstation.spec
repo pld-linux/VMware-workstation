@@ -4,9 +4,12 @@
 #	- http://www.vmware.com/support/ws45/doc/devices_linux_kb_ws.html#1040861
 #
 # Conditional build:
-%bcond_with	internal_libs	# internal libs stuff
 %bcond_without	dist_kernel	# without distribution kernel
+%bcond_without	kernel		# don't build kernel modules
 %bcond_without	smp		# without SMP kernel modules
+%bcond_without	userspace	# don't build userspace utilities
+%bcond_with	internal_libs	# internal libs stuff
+%bcond_with	verbose		# verbose build (V=1)
 #
 %include	/usr/lib/rpm/macros.perl
 #
@@ -38,11 +41,11 @@ Patch2:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
-Requires:	kernel(vmmon) = %{version}-%{_rel}
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
 BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.153
+BuildRequires:	rpmbuild(macros) >= 1.217
 BuildRequires:	sed >= 4.0
+Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -213,6 +216,7 @@ rm -f update
 ./update bridge		../bin/vmnet-bridge
 %endif
 
+%if %{with kernel}
 rm -rf built
 mkdir built
 cp -a vmmon-only vmmon-only.clean
@@ -233,15 +237,19 @@ for mod in vmmon vmnet ; do
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
 			M=$PWD O=$PWD \
-			VM_KBUILD=26
+			VM_KBUILD=26 \
+			%{?with_verbose:V=1}
 		mv -f $mod.ko ../built/$mod-$cfg.ko
 		cd -
 	done
 done
 cd ..
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
+
+%if %{with userspace}
 install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
@@ -251,8 +259,11 @@ install -d \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
 	$RPM_BUILD_ROOT/etc/rc.d/init.d \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc \
 	$RPM_BUILD_ROOT/var/run/vmware
+%endif
+
+%if %{with kernel}
+install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc
 
 cd vmware-any-any-update%{_urel}
 install built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
@@ -266,7 +277,9 @@ install built/vmnet-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
 %endif
 cd -
+%endif
 
+%if %{with userspace}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
 install %{SOURCE4} $RPM_BUILD_ROOT%{_pixmapsdir}
@@ -298,6 +311,7 @@ install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 %else
 install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
+%endif
 %endif
 
 %clean
@@ -343,6 +357,7 @@ fi
 %postun -n kernel-smp-misc-vmnet
 %depmod %{_kernel_ver}smp
 
+%if %{with userspace}
 %files
 %defattr(644,root,root,755)
 %doc doc/* lib/configurator/vmnet-{dhcpd,nat}.conf
@@ -409,7 +424,9 @@ fi
 %attr(755,root,root) %{_bindir}/vmware-smbpasswd.bin
 %{_libdir}/vmware/smb
 %endif
+%endif
 
+%if %{with kernel}
 %files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*
@@ -426,4 +443,5 @@ fi
 %files	-n kernel-smp-misc-vmnet
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}smp/misc/vmnet.ko*
+%endif
 %endif
