@@ -8,10 +8,14 @@
 %bcond_without	kernel		# don't build kernel modules
 %bcond_without	smp		# without SMP kernel modules
 %bcond_without	userspace	# don't build userspace utilities
+%bcond_with	kernel24	# build kernel24 modules (disable kernel26)
 %bcond_with	internal_libs	# internal libs stuff
 %bcond_with	verbose		# verbose build (V=1)
 #
 %include	/usr/lib/rpm/macros.perl
+%if %{with kernel24}
+%define         _kernelsrcdir		/usr/src/linux-2.4
+%endif
 #
 %define		_ver	5.0.0
 %define		_build	13124
@@ -191,6 +195,82 @@ SMP kernel module for VMware Workstation - vmnet-smp.
 %description -n kernel-smp-misc-vmnet -l pl
 Modu³y j±dra SMP dla VMware Workstation - vmnet-smp.
 
+%package -n kernel24-misc-vmmon
+Summary:	Kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_up
+Requires(postun):	%releq_kernel_up
+%endif
+Provides:	kernel(vmmon) = %{version}-%{_rel}
+
+%description -n kernel24-misc-vmmon
+Kernel modules for VMware Workstation - vmmon.
+
+%description -n kernel24-misc-vmmon -l pl
+Modu³y j±dra dla VMware Workstation - vmmon.
+
+%package -n kernel24-misc-vmnet
+Summary:	Kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_up
+Requires(postun):	%releq_kernel_up
+%endif
+Provides:	kernel(vmnet) = %{version}-%{_rel}
+
+%description -n kernel24-misc-vmnet
+Kernel modules for VMware Workstation - vmnet.
+
+%description -n kernel24-misc-vmnet -l pl
+Modu³y j±dra dla VMware Workstation - vmnet.
+
+%package -n kernel24-smp-misc-vmmon
+Summary:	SMP kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra SMP dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_smp
+Requires(postun):	%releq_kernel_smp
+%endif
+Provides:	kernel(vmmon) = %{version}-%{_rel}
+
+%description -n kernel24-smp-misc-vmmon
+SMP kernel modules fov VMware Workstation - vmmon-smp.
+
+%description -n kernel24-smp-misc-vmmon -l pl
+Modu³y j±dra SMP dla VMware Workstation - vmmon-smp.
+
+%package -n kernel24-smp-misc-vmnet
+Summary:	SMP kernel module for VMware Workstation
+Summary(pl):	Modu³ j±dra SMP dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel_smp
+Requires(postun):	%releq_kernel_smp
+%endif
+Provides:	kernel(vmnet) = %{version}-%{_rel}
+
+%description -n kernel24-smp-misc-vmnet
+SMP kernel module for VMware Workstation - vmnet-smp.
+
+%description -n kernel24-smp-misc-vmnet -l pl
+Modu³y j±dra SMP dla VMware Workstation - vmnet-smp.
+
 %prep
 %setup -q -n vmware-distrib
 %setup -qDT -n vmware-distrib -a1
@@ -219,6 +299,8 @@ rm -f update
 %if %{with kernel}
 rm -rf built
 mkdir built
+
+%if %{without kernel24}
 cp -a vmmon-only vmmon-only.clean
 cp -a vmnet-only vmnet-only.clean
 for mod in vmmon vmnet ; do
@@ -243,7 +325,42 @@ for mod in vmmon vmnet ; do
 		cd -
 	done
 done
-cd ..
+
+%else
+for mod in vmmon vmnet ; do
+	rm -rf $mod-only
+	tar xf $mod.tar
+	cd $mod-only
+	sed -i s/'^HEADER_DIR.*'/'HEADER_DIR = \/usr\/src\/linux-2.4\/include'/ Makefile
+	sed -i s/'^BUILD_DIR.*'/'BUILD_DIR = .'/ Makefile
+
+%if %{with smp}
+	%{__make} \
+		VM_KBUILD=no VMWARE_VER=VME_V5 \
+		M=$PWD O=$PWD CC=%{kgcc} \
+		INCLUDES="%{rpmcflags} -I. -D__KERNEL_SMP=1 -D__SMP__ -I%{_kernelsrcdir}/include"
+	if [ -e $mod-xxx-* ]; then
+		mv -f $mod-xxx-* ../built/$mod-smp.o
+	else
+		mv -f driver-*/$mod-xxx-* ../built/$mod-smp.o
+	fi
+
+	%{__make} VM_KBUILD=no clean
+%endif
+	%{__make} \
+		VM_KBUILD=no VMWARE_VER=VME_V5 \
+		M=$PWD O=$PWD CC=%{kgcc} \
+		INCLUDES="%{rpmcflags} -I. -I%{_kernelsrcdir}/include"
+	if [ -e $mod-xxx-* ]; then
+		mv -f $mod-xxx-* ../built/$mod.o
+	else
+		mv -f driver-*/$mod-xxx-* ../built/$mod.o
+	fi
+
+	cd ..
+done
+%endif # kernel24
+
 %endif
 
 %install
@@ -266,6 +383,8 @@ install -d \
 install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc
 
 cd vmware-any-any-update%{_urel}
+
+%if %{without kernel24}
 install built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
 install built/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
@@ -276,6 +395,21 @@ install built/vmmon-smp.ko \
 install built/vmnet-smp.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
 %endif
+
+%else
+install built/vmmon.o \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.o
+install built/vmnet.o \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmnet.o
+%if %{with smp} && %{with dist_kernel}
+install built/vmmon-smp.o \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmmon.o
+install built/vmnet-smp.o \
+	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.o
+%endif
+
+%endif
+
 cd -
 %endif
 
@@ -357,6 +491,30 @@ fi
 %postun -n kernel-smp-misc-vmnet
 %depmod %{_kernel_ver}smp
 
+%post	-n kernel24-misc-vmmon
+%depmod %{_kernel_ver}
+
+%postun -n kernel24-misc-vmmon
+%depmod %{_kernel_ver}
+
+%post	-n kernel24-misc-vmnet
+%depmod %{_kernel_ver}
+
+%postun -n kernel24-misc-vmnet
+%depmod %{_kernel_ver}
+
+%post	-n kernel24-smp-misc-vmmon
+%depmod %{_kernel_ver}smp
+
+%postun -n kernel24-smp-misc-vmmon
+%depmod %{_kernel_ver}smp
+
+%post	-n kernel24-smp-misc-vmnet
+%depmod %{_kernel_ver}smp
+
+%postun -n kernel24-smp-misc-vmnet
+%depmod %{_kernel_ver}smp
+
 %if %{with userspace}
 %files
 %defattr(644,root,root,755)
@@ -427,6 +585,7 @@ fi
 %endif
 
 %if %{with kernel}
+%if %{without kernel24}
 %files -n kernel-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*
@@ -444,4 +603,26 @@ fi
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}smp/misc/vmnet.ko*
 %endif
+
+%else
+%files -n kernel24-misc-vmmon
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vmmon.o*
+
+%files -n kernel24-misc-vmnet
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vmnet.o*
+
+%if %{with smp} && %{with dist_kernel}
+%files	-n kernel24-smp-misc-vmmon
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}smp/misc/vmmon.o*
+
+%files	-n kernel24-smp-misc-vmnet
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}smp/misc/vmnet.o*
+%endif
+
+%endif
+
 %endif
