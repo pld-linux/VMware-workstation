@@ -316,6 +316,7 @@ for mod in vmmon vmnet ; do
 		ln -sf %{_kernelsrcdir}/config-$cfg .config
 		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
+		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg Module.symvers
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
 			M=$PWD O=$PWD \
