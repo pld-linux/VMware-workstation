@@ -20,7 +20,7 @@
 %define		_ver	5.0.0
 %define		_build	13124
 %define		_rel	1
-%define		_urel	90
+%define		_urel	93
 #
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -32,7 +32,7 @@ Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 # NoSource0-md5:	91821fc2649749911f0e2d0ca37b3eb8
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	b8f6498f5275dc8ef3ea2d2e17061ede
+# Source1-md5:	7a33c47bf06f8c88f71ff5131796d321
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -40,8 +40,7 @@ Source5:	%{name}.desktop
 Source6:	%{name}-nat.conf
 Source7:	%{name}-dhcpd.conf
 Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-compat.patch
-Patch2:		%{name}-run_script.patch
+Patch1:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
@@ -278,9 +277,10 @@ cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
 tar xf vmnet.tar
 %patch0 -p0
-%patch1 -p0
+cp -a vmmon-only{,.clean}
+cp -a vmnet-only{,.clean}
 cd -
-%patch2 -p1
+%patch1 -p1
 
 %build
 sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
@@ -301,8 +301,6 @@ rm -rf built
 mkdir built
 
 %if %{without kernel24}
-cp -a vmmon-only vmmon-only.clean
-cp -a vmnet-only vmnet-only.clean
 for mod in vmmon vmnet ; do
 	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
 		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
@@ -316,6 +314,7 @@ for mod in vmmon vmnet ; do
 		ln -sf %{_kernelsrcdir}/config-$cfg .config
 		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
 		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
+		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm-%{_target_base_arch}
 		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg Module.symvers
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
