@@ -32,11 +32,11 @@ vmnet_cfg="$vmware_etc_dir"/vmnet.conf
 for f in $vmware_locations $vmnet_cfg; do
 	if [ -r $f ]; then
 		. $f
-	else	
+	else
 		echo "FATAL: Unable to read $f"
 		exit 1
 	fi
-done	
+done
 
 # System wide functions
 . /etc/rc.d/init.d/functions
@@ -50,7 +50,7 @@ vmware_create_vmnet() {
 	mknod -m 600 "$vDevice" c 119 "$vHubNr"
     fi
 }
-		  
+
 #
 # Create a temporary directory
 #
@@ -296,7 +296,7 @@ case "$1" in
   start)
 	if [ -f /var/lock/subsys/"$subsys" ]; then
 		msg_already_running "VMware Workstation networking"
-	fi	
+	fi
 	# Try to load parport_pc. Failure is allowed as it does not exist
 	# on kernels 2.0
 	/sbin/modprobe parport_pc >/dev/null 2>&1
@@ -356,7 +356,7 @@ case "$1" in
 	fi
 	if [ ! -f /var/lock/subsys/"$subsys" ]; then
 		msg_not_running "VMware Workstation networking"
-	fi	
+	fi
 	# Try to unload parport_pc. Failure is allowed as it does not exist
 	# on kernels 2.0, and some other process could be using it.
 	/sbin/modprobe -r parport_pc >/dev/null 2>&1
