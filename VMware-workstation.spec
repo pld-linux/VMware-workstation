@@ -2,10 +2,6 @@
 # TODO:
 #	- Dependencies
 #	- http://www.vmware.com/support/ws45/doc/devices_linux_kb_ws.html#1040861
-#       - "Version mismatch with vmmon module: expecting 137.0, got 116.0.
-#          You have an incorrect version of the `vmmon' kernel module."
-#         possible solution:
-#         http://www.vmware.com/community/thread.jspa?threadID=27537&tstart=0
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -25,6 +21,7 @@
 %define		_build	18463
 %define		_rel	0.1
 %define		_urel	96
+%define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Workstation
 Summary(pl):	VMware Workstation - wirtualna platforma dla stacji roboczej
@@ -35,8 +32,8 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 # NoSource0-md5:	d69876f0eb4fe8c286a63c906ff32c34
-Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	79dd91c65f3719bb7847d63b314706c3
+#Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
+## Source1-md5:	79dd91c65f3719bb7847d63b314706c3
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -276,11 +273,14 @@ Modu³y j±dra SMP dla VMware Workstation - vmnet-smp.
 
 %prep
 %setup -q -n vmware-distrib
-%setup -qDT -n vmware-distrib -a1
+#%setup -qDT -n vmware-distrib -a1
+mkdir vmware-any-any-update%{_urel}
 cd vmware-any-any-update%{_urel}
-tar xf vmmon.tar
-tar xf vmnet.tar
-%patch0 -p0
+#tar xf vmmon.tar
+#tar xf vmnet.tar
+tar xf ../lib/modules/source/vmmon.tar
+tar xf ../lib/modules/source/vmnet.tar
+#%patch0 -p0
 cp -a vmmon-only{,.clean}
 cp -a vmnet-only{,.clean}
 cd -
@@ -324,7 +324,8 @@ for mod in vmmon vmnet ; do
 			VMWARE_VER=VME_V5 \
 			M=$PWD O=$PWD \
 			VM_KBUILD=26 \
-			%{?with_verbose:V=1}
+			%{?with_verbose:V=1} \
+			VM_CCVER=%{_ccver}
 		mv -f $mod.ko ../built/$mod-$cfg.ko
 		cd -
 	done
