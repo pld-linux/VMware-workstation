@@ -2,6 +2,10 @@
 # TODO:
 #	- Dependencies
 #	- http://www.vmware.com/support/ws45/doc/devices_linux_kb_ws.html#1040861
+#       - "Version mismatch with vmmon module: expecting 137.0, got 116.0.
+#          You have an incorrect version of the `vmmon' kernel module."
+#         possible solution:
+#         http://www.vmware.com/community/thread.jspa?threadID=27537&tstart=0
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
@@ -371,7 +375,7 @@ install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
 	$RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware/bin \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/{bin,share/pixmaps} \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
@@ -423,6 +427,8 @@ install %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
+
+install lib/share/pixmaps/* $RPM_BUILD_ROOT%{_libdir}/vmware/share/pixmaps
 
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
@@ -541,6 +547,7 @@ fi
 %dir %{_libdir}/vmware/messages
 %{_libdir}/vmware/messages/en
 %lang(ja) %{_libdir}/vmware/messages/ja
+%{_libdir}/vmware/share
 %{_libdir}/vmware/xkeymap
 %{_mandir}/man1/*
 %attr(1777,root,root) %dir /var/run/vmware
