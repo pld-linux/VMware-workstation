@@ -17,9 +17,9 @@
 %define         _kernelsrcdir		/usr/src/linux-2.4
 %endif
 #
-%define		_ver	5.0.0
-%define		_build	13124
-%define		_rel	2
+%define		_ver	5.5.0
+%define		_build	18463
+%define		_rel	0.1
 %define		_urel	96
 #
 Summary:	VMware Workstation
@@ -30,7 +30,7 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	91821fc2649749911f0e2d0ca37b3eb8
+# NoSource0-md5:	d69876f0eb4fe8c286a63c906ff32c34
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	79dd91c65f3719bb7847d63b314706c3
 Source2:	%{name}.init
