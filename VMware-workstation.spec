@@ -19,7 +19,7 @@
 #
 %define		_ver	5.5.1
 %define		_build	19175
-%define		_rel	0.1
+%define		_rel	0.2
 %define		_urel	96
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
@@ -51,6 +51,7 @@ BuildRequires:	rpmbuild(macros) >= 1.217
 BuildRequires:	sed >= 4.0
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
+Requires:	libview >= 0.5.5-2
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
