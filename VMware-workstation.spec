@@ -321,6 +321,9 @@ for mod in vmmon vmnet ; do
 		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
 		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm-%{_target_base_arch}
 		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg Module.symvers
+	%if %{without dist_kernel}
+                ln -sf %{_kernelsrcdir}/scripts
+        %endif
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
 			M=$PWD O=$PWD \
