@@ -314,19 +314,21 @@ for mod in vmmon vmnet ; do
 		rm -rf $mod-only
 		cp -a $mod-only.clean $mod-only
 		cd $mod-only
-		install -d include/{linux,config}
-		touch include/config/MARKER
-		ln -sf %{_kernelsrcdir}/config-$cfg .config
-		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h include/linux/autoconf.h
-		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm
-		ln -sf %{_kernelsrcdir}/include/asm-%{_target_base_arch} include/asm-%{_target_base_arch}
-		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg Module.symvers
-	%if %{without dist_kernel}
-                ln -sf %{_kernelsrcdir}/scripts
+		install -d o/include/linux
+		ln -sf %{_kernelsrcdir}/config-$cfg o/.config
+		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
+		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
+	%if %{with dist_kernel}
+		%{__make} -C %{_kernelsrcdir} O=$PWD/o prepare scripts
+	%else
+		install -d o/include/config
+		touch o/include/config/MARKER
+		ln -sf %{_kernelsrcdir}/scripts o/scripts
         %endif
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
-			M=$PWD O=$PWD \
+			SRCROOT=$PWD \
+			M=$PWD O=$PWD/o \
 			VM_KBUILD=26 \
 			%{?with_verbose:V=1} \
 			VM_CCVER=%{_ccver}
