@@ -288,6 +288,8 @@ tar xf ../lib/modules/source/vmnet.tar
 #%patch0 -p0
 cp -a vmmon-only{,.clean}
 cp -a vmnet-only{,.clean}
+sed -e 's/filter x86_64%/filter x86_64% amd64% ia64%/' \
+	-i vmnet-only.clean/Makefile.kernel
 cd -
 %patch1 -p1
 
