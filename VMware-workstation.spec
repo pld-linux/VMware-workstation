@@ -324,6 +324,15 @@ for mod in vmmon vmnet ; do
 		ln -sf %{_kernelsrcdir}/config-$cfg o/.config
 		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
 		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
+	if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
+		sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
+			-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
+			-i ../vmmon-only/linux/driver.c
+		sed -e 's/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(vnetHubLock)/' \
+			-i ../vmnet-only/hub.c
+		sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
+			-i ../vmnet-only/driver.c
+	fi
 	%if %{with dist_kernel}
 		%{__make} -C %{_kernelsrcdir} O=$PWD/o prepare scripts
 	%else
