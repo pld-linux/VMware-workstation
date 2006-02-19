@@ -16,6 +16,10 @@
 %if %{with kernel24}
 %define         _kernelsrcdir		/usr/src/linux-2.4
 %endif
+
+%ifarch %{x8664}
+%undefine	with_userspace
+%endif
 #
 %define		_ver	5.5.1
 %define		_build	19175
@@ -52,7 +56,7 @@ BuildRequires:	sed >= 4.0
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
 Requires:	libview >= 0.5.5-2
-ExclusiveArch:	%{ix86}
+ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_noautoprovfiles %{_libdir}/vmware/lib/.*\.so.*
