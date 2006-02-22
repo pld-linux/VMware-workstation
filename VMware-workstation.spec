@@ -355,7 +355,7 @@ done
 %else
 for mod in vmmon vmnet ; do
 	rm -rf $mod-only
-	tar xf $mod.tar
+	tar xf ../lib/modules/source/$mod.tar
 	cd $mod-only
 	sed -i s/'^HEADER_DIR.*'/'HEADER_DIR = \/usr\/src\/linux-2.4\/include'/ Makefile
 	sed -i s/'^BUILD_DIR.*'/'BUILD_DIR = .'/ Makefile
