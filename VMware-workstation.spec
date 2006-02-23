@@ -471,6 +471,7 @@ EOF
 install bin/vmware $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
+cp -r	lib/libconf $RPM_BUILD_ROOT%{_libdir}/vmware
 %else
 install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
 %endif
@@ -562,7 +563,8 @@ fi
 %{_libdir}/vmware/isoimages
 %if %{with internal_libs}
 %attr(755,root,root) %{_libdir}/vmware/bin/vmware
-%{_libdir}/vmware/lib
+%dir %{_libdir}/vmware/lib
+%{_libdir}/vmware/lib/lib*
 %attr(755,root,root) %{_libdir}/vmware/lib/wrapper-gtk24.sh
 %endif
 %{_libdir}/vmware/licenses
