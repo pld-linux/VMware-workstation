@@ -51,7 +51,7 @@ URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
 %{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
 BuildRequires:	rpm-perlprov
-BuildRequires:	rpmbuild(macros) >= 1.217
+BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	sed >= 4.0
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
@@ -482,17 +482,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %post networking
 /sbin/chkconfig --add vmnet
-if [ -r /var/lock/subsys/vmnet ]; then
-	/etc/rc.d/init.d/vmnet restart >&2
-else
-	echo "Run \"/etc/rc.d/init.d/vmnet start\" to start VMware networking service."
-fi
+%service vmnet restart "VMware networking service"
 
 %preun networking
 if [ "$1" = "0" ]; then
-	if [ -r /var/lock/subsys/vmnet ]; then
-		/etc/rc.d/init.d/vmnet stop >&2
-	fi
+	%service vmnet stop
 	/sbin/chkconfig --del vmnet
 fi
 
