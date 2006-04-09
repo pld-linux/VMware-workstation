@@ -24,7 +24,7 @@
 %define		_ver	5.5.1
 %define		_build	19175
 %define		_rel	0.2
-%define		_urel	96
+%define		_urel	101
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Workstation
@@ -36,8 +36,8 @@ License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 # NoSource0-md5:	6101deb381beb49f5b99cb1f8a81a532
-#Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-## Source1-md5:	79dd91c65f3719bb7847d63b314706c3
+Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
+# Source1-md5:	b3ce457f5b9ae8b606fd70f56084877d
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -277,21 +277,21 @@ SMP kernel module for VMware Workstation - vmnet-smp.
 Modu³y j±dra SMP dla VMware Workstation - vmnet-smp.
 
 %prep
-%setup -q -n vmware-distrib
-#%setup -qDT -n vmware-distrib -a1
-mkdir vmware-any-any-update%{_urel}
+#%setup -q -n vmware-distrib
+%setup -qDT -n vmware-distrib -a1
+#mkdir vmware-any-any-update%{_urel}
 cd vmware-any-any-update%{_urel}
-#tar xf vmmon.tar
-#tar xf vmnet.tar
-tar xf ../lib/modules/source/vmmon.tar
-tar xf ../lib/modules/source/vmnet.tar
+tar xf vmmon.tar
+tar xf vmnet.tar
+#tar xf ../lib/modules/source/vmmon.tar
+#tar xf ../lib/modules/source/vmnet.tar
 #%patch0 -p0
 cp -a vmmon-only{,.clean}
 cp -a vmnet-only{,.clean}
 sed -e 's/filter x86_64%/filter x86_64% amd64% ia64%/' \
 	-i vmnet-only.clean/Makefile.kernel
 cd -
-%patch1 -p1
+#%patch1 -p1
 
 %build
 sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
