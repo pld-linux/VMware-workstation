@@ -49,7 +49,7 @@ Patch1:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
 BuildRequires:	gcc-c++
-%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 2.6.7}
+%{?with_dist_kernel:BuildRequires:	kernel-module-build >= 3:2.6.7}
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	sed >= 4.0
@@ -339,7 +339,7 @@ for mod in vmmon vmnet ; do
 		install -d o/include/config
 		touch o/include/config/MARKER
 		ln -sf %{_kernelsrcdir}/scripts o/scripts
-        %endif
+		%endif
 		%{__make} -C %{_kernelsrcdir} modules \
 			VMWARE_VER=VME_V5 \
 			SRCROOT=$PWD \
