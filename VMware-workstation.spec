@@ -53,7 +53,6 @@ BuildRequires:	gcc-c++
 BuildRequires:	rpm-perlprov
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	sed >= 4.0
-Requires:	gtk+2 <= 2:2.8.8-1
 Requires:	kernel(vmmon) = %{version}-%{_rel}
 Requires:	libgnomecanvasmm
 Requires:	libview >= 0.5.5-2
