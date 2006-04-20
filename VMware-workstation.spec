@@ -102,8 +102,10 @@ Pliki pomocy dla VMware Workstation.
 Summary:	VMware networking utilities
 Summary(pl):	Narzêdzia VMware do obs³ugi sieci
 Group:		Applications/Emulators
+Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name} = %{version}-%{release}
 Requires:	kernel(vmnet) = %{version}-%{_rel}
+Requires:	rc-scripts
 Obsoletes:	VMware-workstation-samba
 
 %description networking
