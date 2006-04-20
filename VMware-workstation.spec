@@ -279,8 +279,8 @@ SMP kernel module for VMware Workstation - vmnet-smp.
 Modu³y j±dra SMP dla VMware Workstation - vmnet-smp.
 
 %prep
-#%setup -q -n vmware-distrib
-%setup -qDT -n vmware-distrib -a1
+%setup -q -n vmware-distrib -a1
+#%setup -qDT -n vmware-distrib -a1
 #mkdir vmware-any-any-update%{_urel}
 cd vmware-any-any-update%{_urel}
 tar xf vmmon.tar
