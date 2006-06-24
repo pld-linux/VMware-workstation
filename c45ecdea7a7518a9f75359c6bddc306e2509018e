@@ -1,0 +1,4 @@
+- _urel 93, reentrant %build.
+- fixed kernel capabilites (#define HVW_HAVE_xxx) autodetection.
+  (kernel build system passes -Iinclude/asm-$arch/mach-* to vm_check_build
+   so we need a simple symlink to fix this issue).
