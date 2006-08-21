@@ -21,10 +21,10 @@
 %undefine	with_userspace
 %endif
 #
-%define		_ver	5.5.1
-%define		_build	19175
-%define		_rel	0.2
-%define		_urel	101
+%define		_ver	5.5.2
+%define		_build	29772
+%define		_rel	0.1
+%define		_urel	104
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Workstation
@@ -35,9 +35,9 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	6101deb381beb49f5b99cb1f8a81a532
+# NoSource0-md5:	6463a9bf44e10de9c11f65ed52112ff5
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	b3ce457f5b9ae8b606fd70f56084877d
+# Source1-md5:	8cba16d3f6b3723b43d555a5f7cbf850
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
