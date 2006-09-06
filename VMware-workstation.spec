@@ -336,7 +336,7 @@ for mod in vmmon vmnet ; do
 			-i ../vmnet-only/driver.c
 	fi
 	%if %{with dist_kernel}
-		%{__make} -C %{_kernelsrcdir} O=$PWD/o prepare scripts
+		%{__make} -j1 -C %{_kernelsrcdir} O=$PWD/o prepare scripts
 	%else
 		install -d o/include/config
 		touch o/include/config/MARKER
