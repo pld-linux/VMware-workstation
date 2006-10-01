@@ -20,10 +20,14 @@
 %ifarch %{x8664}
 %undefine	with_userspace
 %endif
+
+%if %{without kernel}
+%undefine with_dist_kernel
+%endif
 #
 %define		_ver	5.5.2
 %define		_build	29772
-%define		_rel	0.1
+%define		_rel	1
 %define		_urel	104
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
@@ -48,9 +52,9 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
-BuildRequires:	gcc-c++
+%{?with_kernel:BuildRequires:	gcc-c++}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
-BuildRequires:	rpm-perlprov
+%{?with_userspace:BuildRequires:	rpm-perlprov}
 BuildRequires:	rpmbuild(macros) >= 1.308
 BuildRequires:	sed >= 4.0
 Requires:	kernel(vmmon) = %{version}-%{_rel}
@@ -453,6 +457,8 @@ touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 
 install lib/share/pixmaps/* $RPM_BUILD_ROOT%{_libdir}/vmware/share/pixmaps
+# required for starting vmware
+install lib/share/EULA.txt $RPM_BUILD_ROOT%{_libdir}/vmware/share
 
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
