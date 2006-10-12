@@ -59,8 +59,6 @@ BuildRequires:	rpmbuild(macros) >= 1.308
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libview >= 0.5.5-2
-Conflicts:	kernel(vmmon) < %{version}-%{_rel}
-Conflicts:	kernel(vmmon) > %{version}-%{_rel}
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -111,8 +109,6 @@ Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name} = %{version}-%{release}
 Requires:	rc-scripts
 Obsoletes:	VMware-workstation-samba
-Conflicts:	kernel(vmnet) < %{version}-%{_rel}
-Conflicts:	kernel(vmnet) > %{version}-%{_rel}
 
 %description networking
 VMware networking utilities.
