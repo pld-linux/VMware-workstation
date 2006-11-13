@@ -21,7 +21,7 @@
 %undefine	with_userspace
 %endif
 
-%if %{without kernel}
+%if !%{with kernel}
 %undefine with_dist_kernel
 %endif
 #
@@ -315,7 +315,7 @@ rm -f update
 rm -rf built
 mkdir built
 
-%if %{without kernel24}
+%if !%{with kernel24}
 for mod in vmmon vmnet ; do
 	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
 		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
@@ -414,7 +414,7 @@ install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc
 
 cd vmware-any-any-update%{_urel}
 
-%if %{without kernel24}
+%if !%{with kernel24}
 install built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
 	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
 install built/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
@@ -616,7 +616,7 @@ fi
 %endif
 
 %if %{with kernel}
-%if %{without kernel24}
+%if !%{with kernel24}
 %files -n kernel%{_alt_kernel}-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*
