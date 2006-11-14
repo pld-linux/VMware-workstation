@@ -55,7 +55,7 @@ URL:		http://www.vmware.com/
 %{?with_kernel:BuildRequires:	gcc-c++}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
 %{?with_userspace:BuildRequires:	rpm-perlprov}
-BuildRequires:	rpmbuild(macros) >= 1.330
+BuildRequires:	rpmbuild(macros) >= 1.332
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libview >= 0.5.5-2
@@ -313,8 +313,12 @@ mkdir built
 
 %if !%{with kernel24}
 %define ModuleBuildArgs VMWARE_VER=VME_V5 SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{_ccver}
-%build_kernel_modules -C vmmon-only -m vmmon %{ModuleBuildArgs}
-%build_kernel_modules -C vmnet-only -m vmnet %{ModuleBuildArgs}
+%build_kernel_modules -c -C vmmon-only -m vmmon %{ModuleBuildArgs} <<'EOF'
+rm -f */*.o *.o
+EOF
+%build_kernel_modules -c -C vmnet-only -m vmnet %{ModuleBuildArgs} <<'EOF'
+rm -f *.o
+EOF
 %if 0
 	if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
 		sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
