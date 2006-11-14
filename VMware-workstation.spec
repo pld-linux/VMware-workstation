@@ -313,23 +313,33 @@ mkdir built
 
 %if !%{with kernel24}
 %define ModuleBuildArgs VMWARE_VER=VME_V5 SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{_ccver}
+
+cp vmmon-only/linux/driver.c{,.orig}
 %build_kernel_modules -c -C vmmon-only -m vmmon %{ModuleBuildArgs} <<'EOF'
 rm -f */*.o *.o
+if grep -q "CONFIG_PREEMPT_RT" o/.config; then
+	sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
+		-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
+		linux/driver.c.orig > linux/driver.c
+else
+	cat linux/driver.c.orig > linux/driver.c
+fi	
 EOF
+
+cp vmnet-only/hub.c{,.orig}
+cp vmnet-only/driver.c{,.orig}
 %build_kernel_modules -c -C vmnet-only -m vmnet %{ModuleBuildArgs} <<'EOF'
 rm -f *.o
+if grep -q "CONFIG_PREEMPT_RT" o/.config; then
+	sed -e 's/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(vnetHubLock)/' \
+		hub.c.orig > hub.c
+	sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
+		driver.c.orig > driver.c
+else
+	cat hub.c.orig > hub.c
+	cat driver.c.orig > driver.c
+fi
 EOF
-%if 0
-	if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
-		sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
-			-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
-			-i ../vmmon-only/linux/driver.c
-		sed -e 's/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(vnetHubLock)/' \
-			-i ../vmnet-only/hub.c
-		sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
-			-i ../vmnet-only/driver.c
-	fi
-%endif
 
 %else
 for mod in vmmon vmnet ; do
