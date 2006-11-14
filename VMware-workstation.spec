@@ -55,7 +55,7 @@ URL:		http://www.vmware.com/
 %{?with_kernel:BuildRequires:	gcc-c++}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
 %{?with_userspace:BuildRequires:	rpm-perlprov}
-BuildRequires:	rpmbuild(macros) >= 1.308
+BuildRequires:	rpmbuild(macros) >= 1.330
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libview >= 0.5.5-2
@@ -290,8 +290,6 @@ tar xf vmnet.tar
 #tar xf ../lib/modules/source/vmmon.tar
 #tar xf ../lib/modules/source/vmnet.tar
 #%patch0 -p0
-cp -a vmmon-only{,.clean}
-cp -a vmnet-only{,.clean}
 cd -
 #%patch1 -p1
 
@@ -314,18 +312,10 @@ rm -rf built
 mkdir built
 
 %if !%{with kernel24}
-for mod in vmmon vmnet ; do
-	for cfg in %{?with_dist_kernel:%{?with_smp:smp} up}%{!?with_dist_kernel:nondist}; do
-		if [ ! -r "%{_kernelsrcdir}/config-$cfg" ]; then
-			exit 1
-		fi
-		rm -rf $mod-only
-		cp -a $mod-only.clean $mod-only
-		cd $mod-only
-		install -d o/include/linux
-		ln -sf %{_kernelsrcdir}/config-$cfg o/.config
-		ln -sf %{_kernelsrcdir}/Module.symvers-$cfg o/Module.symvers
-		ln -sf %{_kernelsrcdir}/include/linux/autoconf-$cfg.h o/include/linux/autoconf.h
+%define ModuleBuildArgs VMWARE_VER=VME_V5 SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{_ccver}
+%build_kernel_modules -C vmmon-only -m vmmon %{ModuleBuildArgs}
+%build_kernel_modules -C vmnet-only -m vmnet %{ModuleBuildArgs}
+%if 0
 	if grep -q "^CONFIG_PREEMPT_RT=y$" o/.config; then
 		sed -e '/pollQueueLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(pollQueueLock)/' \
 			-e '/timerLock/s/SPIN_LOCK_UNLOCKED/SPIN_LOCK_UNLOCKED(timerLock)/' \
@@ -335,24 +325,7 @@ for mod in vmmon vmnet ; do
 		sed -e 's/RW_LOCK_UNLOCKED/RW_LOCK_UNLOCKED(vnetPeerLock)/' \
 			-i ../vmnet-only/driver.c
 	fi
-	%if %{with dist_kernel}
-		%{__make} -j1 -C %{_kernelsrcdir} O=$PWD/o prepare scripts
-	%else
-		install -d o/include/config
-		touch o/include/config/MARKER
-		ln -sf %{_kernelsrcdir}/scripts o/scripts
-		%endif
-		%{__make} -C %{_kernelsrcdir} modules \
-			VMWARE_VER=VME_V5 \
-			SRCROOT=$PWD \
-			M=$PWD O=$PWD/o \
-			VM_KBUILD=26 \
-			%{?with_verbose:V=1} \
-			VM_CCVER=%{_ccver}
-		mv -f $mod.ko ../built/$mod-$cfg.ko
-		cd -
-	done
-done
+%endif
 
 %else
 for mod in vmmon vmnet ; do
@@ -413,16 +386,7 @@ install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}{,smp}/misc
 cd vmware-any-any-update%{_urel}
 
 %if !%{with kernel24}
-install built/vmmon-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmmon.ko
-install built/vmnet-%{?with_dist_kernel:up}%{!?with_dist_kernel:nondist}.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc/vmnet.ko
-%if %{with smp} && %{with dist_kernel}
-install built/vmmon-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmmon.ko
-install built/vmnet-smp.ko \
-	$RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}smp/misc/vmnet.ko
-%endif
+%install_kernel_modules -m vmmon-only/vmmon,vmnet-only/vmnet -d misc
 
 %else
 install built/vmmon.o \
