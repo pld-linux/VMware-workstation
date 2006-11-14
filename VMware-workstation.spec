@@ -28,7 +28,7 @@
 %define		_ver	5.5.2
 %define		_build	29772
 %define		_rel	1
-%define		_urel	104
+%define		_urel	105
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Workstation
@@ -41,7 +41,7 @@ Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 # NoSource0-md5:	6463a9bf44e10de9c11f65ed52112ff5
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	8cba16d3f6b3723b43d555a5f7cbf850
+# Source1-md5:	edad0bd1abf80caaf672498e14ad8727
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
@@ -292,8 +292,6 @@ tar xf vmnet.tar
 #%patch0 -p0
 cp -a vmmon-only{,.clean}
 cp -a vmnet-only{,.clean}
-sed -e 's/filter x86_64%/filter x86_64% amd64% ia64%/' \
-	-i vmnet-only.clean/Makefile.kernel
 cd -
 #%patch1 -p1
 
