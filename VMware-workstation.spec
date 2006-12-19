@@ -25,8 +25,8 @@
 %undefine with_dist_kernel
 %endif
 #
-%define		_ver	5.5.2
-%define		_build	29772
+%define		_ver	5.5.3
+%define		_build	34685
 %define		_rel	1
 %define		_urel	105
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
@@ -39,7 +39,7 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	6463a9bf44e10de9c11f65ed52112ff5
+# NoSource0-md5:	08a7732afddeb9db41a25a9557fd0397
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	edad0bd1abf80caaf672498e14ad8727
 Source2:	%{name}.init
