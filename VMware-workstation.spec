@@ -32,7 +32,7 @@
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Workstation
-Summary(pl.UTF-8):   VMware Workstation - wirtualna platforma dla stacji roboczej
+Summary(pl.UTF-8):	VMware Workstation - wirtualna platforma dla stacji roboczej
 Name:		VMware-workstation
 Version:	%{_ver}.%{_build}
 Release:	%{_rel}
@@ -78,7 +78,7 @@ rebootowania, bez znacznej utraty wydajności.
 
 %package debug
 Summary:	VMware debug utility
-Summary(pl.UTF-8):   Narzędzie VMware do odpluskwiania
+Summary(pl.UTF-8):	Narzędzie VMware do odpluskwiania
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
@@ -90,7 +90,7 @@ Narzędzie VMware do odpluskwiania.
 
 %package help
 Summary:	VMware Workstation help files
-Summary(pl.UTF-8):   Pliki pomocy dla VMware Workstation
+Summary(pl.UTF-8):	Pliki pomocy dla VMware Workstation
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 Requires:	mozilla
@@ -103,7 +103,7 @@ Pliki pomocy dla VMware Workstation.
 
 %package networking
 Summary:	VMware networking utilities
-Summary(pl.UTF-8):   Narzędzia VMware do obsługi sieci
+Summary(pl.UTF-8):	Narzędzia VMware do obsługi sieci
 Group:		Applications/Emulators
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name} = %{version}-%{release}
@@ -118,7 +118,7 @@ Narzędzia VMware do obsługi sieci.
 
 %package samba
 Summary:	VMware SMB utilities
-Summary(pl.UTF-8):   Narzędzia VMware do SMB
+Summary(pl.UTF-8):	Narzędzia VMware do SMB
 Group:		Applications/Emulators
 Requires:	%{name} = %{version}-%{release}
 
@@ -130,7 +130,7 @@ Narzędzia VMware do SMB.
 
 %package -n kernel%{_alt_kernel}-misc-vmmon
 Summary:	Kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -149,7 +149,7 @@ Moduły jądra dla VMware Workstation - vmmon.
 
 %package -n kernel%{_alt_kernel}-misc-vmnet
 Summary:	Kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -168,7 +168,7 @@ Moduły jądra dla VMware Workstation - vmnet.
 
 %package -n kernel%{_alt_kernel}-smp-misc-vmmon
 Summary:	SMP kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -187,7 +187,7 @@ Moduły jądra SMP dla VMware Workstation - vmmon-smp.
 
 %package -n kernel%{_alt_kernel}-smp-misc-vmnet
 Summary:	SMP kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -206,7 +206,7 @@ Moduły jądra SMP dla VMware Workstation - vmnet-smp.
 
 %package -n kernel24-misc-vmmon
 Summary:	Kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -225,7 +225,7 @@ Moduły jądra dla VMware Workstation - vmmon.
 
 %package -n kernel24-misc-vmnet
 Summary:	Kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -244,7 +244,7 @@ Moduły jądra dla VMware Workstation - vmnet.
 
 %package -n kernel24-smp-misc-vmmon
 Summary:	SMP kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
@@ -263,7 +263,7 @@ Moduły jądra SMP dla VMware Workstation - vmmon-smp.
 
 %package -n kernel24-smp-misc-vmnet
 Summary:	SMP kernel module for VMware Workstation
-Summary(pl.UTF-8):   Moduł jądra SMP dla VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra SMP dla VMware Workstation
 Release:	%{_rel}@%{_kernel_ver_str}
 Group:		Base/Kernel
 Requires(post,postun):	/sbin/depmod
