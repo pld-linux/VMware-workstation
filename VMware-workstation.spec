@@ -6,6 +6,7 @@
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without	kernel		# don't build kernel modules
+%bcond_without	up		# without UP kernel modules
 %bcond_without	smp		# without SMP kernel modules
 %bcond_without	userspace	# don't build userspace utilities
 %bcond_with	kernel24	# build kernel24 modules (disable kernel26)
@@ -572,7 +573,8 @@ fi
 %endif
 
 %if %{with kernel}
-%if !%{with kernel24}
+%if %{without kernel24}
+%if %{with up} || %{without dist_kernel}
 %files -n kernel%{_alt_kernel}-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*
@@ -580,6 +582,7 @@ fi
 %files -n kernel%{_alt_kernel}-misc-vmnet
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmnet.ko*
+%endif
 
 %if %{with smp} && %{with dist_kernel}
 %files	-n kernel%{_alt_kernel}-smp-misc-vmmon
