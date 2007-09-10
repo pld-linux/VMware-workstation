@@ -54,6 +54,7 @@ BuildRequires:	rpmbuild(macros) >= 1.332
 BuildRequires:	sed >= 4.0
 Requires:	libgnomecanvasmm
 Requires:	libview >= 0.5.5-2
+Obsoletes:	VMware-workstation-samba
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
