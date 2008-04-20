@@ -23,7 +23,7 @@
 %define		_ver	5.5.4
 %define		_build	44386
 %define		_rel	1
-%define		_urel	113
+%define		_urel	115
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
 Summary:	VMware Workstation
@@ -36,7 +36,7 @@ Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
 # NoSource0-md5:	115993a6289f6a27a97584f61a9f436a
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
-# Source1-md5:	cb3f91f2196778e6d76d5a6697286d04
+# Source1-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
 Source4:	%{name}.png
