@@ -20,8 +20,8 @@
 %undefine with_dist_kernel
 %endif
 #
-%define		_ver	5.5.4
-%define		_build	44386
+%define		_ver	5.5.5
+%define		_build	56455
 %define		_rel	1
 %define		_urel	115
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
@@ -34,7 +34,7 @@ Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
 Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	115993a6289f6a27a97584f61a9f436a
+# NoSource0-md5:	c81b191738f76b7c085ca6577948349c
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
 Source2:	%{name}.init
@@ -342,7 +342,7 @@ fi
 %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 %endif
 
-%if %{with kernel} || %{without dist_kernel}
+%if %{with kernel} || %{with dist_kernel}
 %files -n kernel%{_alt_kernel}-misc-vmmon
 %defattr(644,root,root,755)
 /lib/modules/%{_kernel_ver}/misc/vmmon.ko*
