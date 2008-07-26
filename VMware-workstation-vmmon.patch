@@ -1,0 +1,36 @@
+diff -U 3 -H -d -r -N -- vmware-any-any-update115/vmmon-only/include/iocontrols.h vmware-any-any-update115/vmmon-only/include/iocontrols.h
+--- vmware-any-any-update115/vmmon-only/include/iocontrols.h	2007-11-28 11:48:50.000000000 +0100
++++ vmware-any-any-update115/vmmon-only/include/iocontrols.h	2008-01-01 03:03:55.000000000 +0100
+@@ -45,7 +45,7 @@
+  *
+  */
+ 
+-#define VMMON_VERSION           (161 << 16 | 0)
++#define VMMON_VERSION           (168 << 16 | 0)
+ #define VMMON_VERSION_MAJOR(v)  ((uint32) (v) >> 16)
+ #define VMMON_VERSION_MINOR(v)  ((uint16) (v))
+ 
+diff -U 3 -H -d -r -N -- vmware-any-any-update115/vmmon-only/include/iocontrols_compat.h vmware-any-any-update115/vmmon-only/include/iocontrols_compat.h
+--- vmware-any-any-update115/vmmon-only/include/iocontrols_compat.h	2007-07-23 11:59:47.000000000 +0200
++++ vmware-any-any-update115/vmmon-only/include/iocontrols_compat.h	2008-01-01 03:03:48.000000000 +0100
+@@ -15,7 +15,7 @@
+ #define VMMON_VERSION_V5        (116 << 16 | 0)
+ #define VMMON_VERSION_V55       (137 << 16 | 0)
+ #define VMMON_VERSION_S1B1      (138 << 16 | 0)
+-#define VMMON_VERSION_V6        (161 << 16 | 0)
++#define VMMON_VERSION_V6        (168 << 16 | 0)
+ 
+ /*
+  * Limit structure for CREATE_VM
+diff -U 3 -H -d -r -N -- vmware-any-any-update115/vmmon-only/include/vcpuset.h vmware-any-any-update115/vmmon-only/include/vcpuset.h
+--- vmware-any-any-update115/vmmon-only/include/vcpuset.h	2007-07-22 13:21:17.000000000 +0200
++++ vmware-any-any-update115/vmmon-only/include/vcpuset.h	2008-01-01 02:21:52.000000000 +0100
+@@ -71,7 +71,7 @@
+ #define ffs(x) ffs_x86_64(x)
+ 
+ #elif defined MODULE
+-   #include "asm/bitops.h"
++   #include "linux/bitops.h"
+ #elif defined __APPLE__ && defined KERNEL
+    /* 
+     * XXXMACOS An ugly hack to resolve redefinition of PAGE_ defines 
