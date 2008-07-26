@@ -20,9 +20,9 @@
 %undefine with_dist_kernel
 %endif
 #
-%define		_ver	5.5.5
-%define		_build	56455
-%define		_rel	1
+%define		_ver	6.0.4
+%define		_build	93057
+%define		_rel	0.1
 %define		_urel	115
 %define		_ccver	%(rpm -q --qf "%{VERSION}" gcc)
 #
@@ -33,18 +33,18 @@ Version:	%{_ver}.%{_build}
 Release:	%{_rel}
 License:	custom, non-distributable
 Group:		Applications/Emulators
-Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.tar.gz
-# NoSource0-md5:	c81b191738f76b7c085ca6577948349c
+Source0:	http://download3.vmware.com/software/wkst/%{name}-%{_ver}-%{_build}.i386.tar.gz
+# NoSource0-md5:	a0a8e1d8188f4be03357872a57a767ab
 Source1:	http://knihovny.cvut.cz/ftp/pub/vmware/vmware-any-any-update%{_urel}.tar.gz
 # Source1-md5:	ab33ff7a799fee77f0f4ba5667cd4b9a
 Source2:	%{name}.init
 Source3:	%{name}-vmnet.conf
-Source4:	%{name}.png
-Source5:	%{name}.desktop
-Source6:	%{name}-nat.conf
-Source7:	%{name}-dhcpd.conf
-Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-run_script.patch
+Source4:	%{name}.desktop
+Source5:	%{name}-nat.conf
+Source6:	%{name}-dhcpd.conf
+Patch0:		%{name}-vmmon.patch
+Patch1:		%{name}-vmblock.patch
+Patch2:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
 %{?with_kernel:BuildRequires:	gcc-c++}
@@ -112,6 +112,25 @@ VMware networking utilities.
 %description networking -l pl.UTF-8
 Narzędzia VMware do obsługi sieci.
 
+%package -n kernel%{_alt_kernel}-misc-vmblock
+Summary:	Kernel module for VMware Workstation
+Summary(pl.UTF-8):	Moduł jądra dla VMware Workstation
+Release:	%{_rel}@%{_kernel_ver_str}
+Group:		Base/Kernel
+Requires(post,postun):	/sbin/depmod
+Requires:	dev >= 2.9.0-7
+%if %{with dist_kernel}
+%requires_releq_kernel
+Requires(postun):	%releq_kernel
+%endif
+Provides:	kernel(vmblock) = %{version}-%{_rel}
+
+%description -n kernel%{_alt_kernel}-misc-vmblock
+Kernel module for VMware Workstation - vmblock.
+
+%description -n kernel%{_alt_kernel}-misc-vmblock -l pl.UTF-8
+Moduł jądra dla VMware Workstation - vmblock.
+
 %package -n kernel%{_alt_kernel}-misc-vmmon
 Summary:	Kernel module for VMware Workstation
 Summary(pl.UTF-8):	Moduł jądra dla VMware Workstation
@@ -126,10 +145,10 @@ Requires(postun):	%releq_kernel
 Provides:	kernel(vmmon) = %{version}-%{_rel}
 
 %description -n kernel%{_alt_kernel}-misc-vmmon
-Kernel modules for VMware Workstation - vmmon.
+Kernel module for VMware Workstation - vmmon.
 
 %description -n kernel%{_alt_kernel}-misc-vmmon -l pl.UTF-8
-Moduły jądra dla VMware Workstation - vmmon.
+Moduł jądra dla VMware Workstation - vmmon.
 
 %package -n kernel%{_alt_kernel}-misc-vmnet
 Summary:	Kernel module for VMware Workstation
@@ -145,23 +164,25 @@ Requires(postun):	%releq_kernel
 Provides:	kernel(vmnet) = %{version}-%{_rel}
 
 %description -n kernel%{_alt_kernel}-misc-vmnet
-Kernel modules for VMware Workstation - vmnet.
+Kernel module for VMware Workstation - vmnet.
 
 %description -n kernel%{_alt_kernel}-misc-vmnet -l pl.UTF-8
-Moduły jądra dla VMware Workstation - vmnet.
+Moduł jądra dla VMware Workstation - vmnet.
 
 %prep
 %setup -q -n vmware-distrib -a1
 #%setup -qDT -n vmware-distrib -a1
 #mkdir vmware-any-any-update%{_urel}
 cd vmware-any-any-update%{_urel}
+tar xf vmblock.tar
 tar xf vmmon.tar
 tar xf vmnet.tar
 #tar xf ../lib/modules/source/vmmon.tar
 #tar xf ../lib/modules/source/vmnet.tar
-#%patch0 -p0
+%patch0 -p1
+%patch1 -p1
 cd -
-#%patch1 -p1
+#%patch2 -p1
 
 %build
 sed -i 's:vm_db_answer_LIBDIR:VM_LIBDIR:g;s:vm_db_answer_BINDIR:VM_BINDIR:g' bin/vmware
@@ -181,8 +202,11 @@ rm -f update
 rm -rf built
 mkdir built
 
-%define ModuleBuildArgs VMWARE_VER=VME_V5 SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{_ccver}
+%define ModuleBuildArgs VMWARE_VER=VME_V6 SRCROOT=$PWD VM_KBUILD=26 VM_CCVER=%{_ccver}
 
+%build_kernel_modules -c -C vmblock-only -m vmblock %{ModuleBuildArgs} <<'EOF'
+rm -f */*.o *.o
+EOF
 %build_kernel_modules -c -C vmmon-only -m vmmon %{ModuleBuildArgs} <<'EOF'
 rm -f */*.o *.o
 EOF
@@ -199,7 +223,7 @@ install -d \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware \
 	$RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/{nat,dhcpd} \
 	$RPM_BUILD_ROOT%{_bindir} \
-	$RPM_BUILD_ROOT%{_libdir}/vmware/{bin,share/pixmaps} \
+	$RPM_BUILD_ROOT%{_libdir}/vmware/{bin,share/{icons,pixmaps}} \
 	$RPM_BUILD_ROOT%{_mandir} \
 	$RPM_BUILD_ROOT%{_pixmapsdir} \
 	$RPM_BUILD_ROOT%{_desktopdir} \
@@ -212,7 +236,7 @@ install -d $RPM_BUILD_ROOT/lib/modules/%{_kernel_ver}/misc
 
 cd vmware-any-any-update%{_urel}
 
-%install_kernel_modules -m vmmon-only/vmmon,vmnet-only/vmnet -d misc
+%install_kernel_modules -m vmblock-only/vmblock,vmmon-only/vmmon,vmnet-only/vmnet -d misc
 
 cd -
 %endif
@@ -220,25 +244,28 @@ cd -
 %if %{with userspace}
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/vmnet
 install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet.conf
-install %{SOURCE4} $RPM_BUILD_ROOT%{_pixmapsdir}
-install %{SOURCE5} $RPM_BUILD_ROOT%{_desktopdir}
-install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
-install %{SOURCE7} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
+install %{SOURCE4} $RPM_BUILD_ROOT%{_desktopdir}
+install %{SOURCE5} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/nat/nat.conf
+install %{SOURCE6} $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases
 touch $RPM_BUILD_ROOT%{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases~
 
 install lib/share/pixmaps/* $RPM_BUILD_ROOT%{_libdir}/vmware/share/pixmaps
+install lib/share/icons/hicolor/48x48/apps/vmware-workstation.png $RPM_BUILD_ROOT%{_pixmapsdir}/%{name}.png
 # required for starting vmware
-install lib/share/EULA.txt $RPM_BUILD_ROOT%{_libdir}/vmware/share
+install doc/EULA $RPM_BUILD_ROOT%{_libdir}/vmware/share/EULA.txt
 
 install bin/*-* $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/vmware-vmx $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 
-#cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,smb,xkeymap} \
+install lib/lib/libvmwarebase.so.0/libvmwarebase.so.0 $RPM_BUILD_ROOT%{_libdir}
+install lib/lib/libvmwareui.so.0/libvmwareui.so.0 $RPM_BUILD_ROOT%{_libdir}
+
 cp -r	lib/{bin-debug,config,floppies,help*,isoimages,licenses,messages,xkeymap} \
 	$RPM_BUILD_ROOT%{_libdir}/vmware
 
+cp -r	lib/share/icons/* $RPM_BUILD_ROOT%{_libdir}/vmware/share/icons
 cp -r	man/* $RPM_BUILD_ROOT%{_mandir}
 gunzip	$RPM_BUILD_ROOT%{_mandir}/man?/*.gz
 
@@ -250,10 +277,12 @@ EOF
 %if %{with internal_libs}
 install bin/vmware $RPM_BUILD_ROOT%{_bindir}
 install lib/bin/vmware $RPM_BUILD_ROOT%{_libdir}/vmware/bin
+install lib/bin/vmware-tray $RPM_BUILD_ROOT%{_libdir}/vmware/bin
 cp -r	lib/lib $RPM_BUILD_ROOT%{_libdir}/vmware
 cp -r	lib/libconf $RPM_BUILD_ROOT%{_libdir}/vmware
 %else
 install lib/bin/vmware $RPM_BUILD_ROOT%{_bindir}
+install lib/bin/vmware-tray $RPM_BUILD_ROOT%{_bindir}
 %endif
 %endif
 
@@ -269,6 +298,12 @@ if [ "$1" = "0" ]; then
 	%service vmnet stop
 	/sbin/chkconfig --del vmnet
 fi
+
+%post	-n kernel%{_alt_kernel}-misc-vmblock
+%depmod %{_kernel_ver}
+
+%postun -n kernel%{_alt_kernel}-misc-vmblock
+%depmod %{_kernel_ver}
 
 %post	-n kernel%{_alt_kernel}-misc-vmmon
 %depmod %{_kernel_ver}
@@ -291,7 +326,11 @@ fi
 %attr(755,root,root) %{_bindir}/vmware
 %attr(755,root,root) %{_bindir}/vmware-loop
 %attr(755,root,root) %{_bindir}/vmware-mount.pl
+%attr(755,root,root) %{_bindir}/vmware-tray
 %attr(755,root,root) %{_bindir}/vmware-vdiskmanager
+%attr(755,root,root) %{_libdir}/libvmwarebase.so.*
+%attr(755,root,root) %{_libdir}/libvmwareui.so.*
+
 %dir %{_libdir}/vmware
 %dir %{_libdir}/vmware/bin
 # warning: SUID !!!
@@ -331,16 +370,24 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet.conf
 %attr(754,root,root) /etc/rc.d/init.d/vmnet
 %attr(755,root,root) %{_bindir}/vmnet-bridge
+%attr(755,root,root) %{_bindir}/vmnet-detect
 %attr(755,root,root) %{_bindir}/vmnet-dhcpd
 %attr(755,root,root) %{_bindir}/vmnet-natd
 %attr(755,root,root) %{_bindir}/vmnet-netifup
 %attr(755,root,root) %{_bindir}/vmnet-sniffer
 %attr(755,root,root) %{_bindir}/vmware-ping
 %dir %{_sysconfdir}/vmware/vmnet8
+%dir %{_sysconfdir}/vmware/vmnet8/dhcpd
+%dir %{_sysconfdir}/vmware/vmnet8/nat
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.conf
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/nat/nat.conf
 %verify(not md5 mtime size) %{_sysconfdir}/vmware/vmnet8/dhcpd/dhcpd.leases*
 %endif
+
+%if %{with kernel} || %{with dist_kernel}
+%files -n kernel%{_alt_kernel}-misc-vmblock
+%defattr(644,root,root,755)
+/lib/modules/%{_kernel_ver}/misc/vmblock.ko*
 
 %if %{with kernel} || %{with dist_kernel}
 %files -n kernel%{_alt_kernel}-misc-vmmon
