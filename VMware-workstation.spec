@@ -1,7 +1,7 @@
 #
 # TODO:
 #	- Dependencies
-#	- http://www.vmware.com/support/ws45/doc/devices_linux_kb_ws.html#1040861
+#	- more files (subpackages?): vmware-authd, vmware-vmci, vmware-vix
 #
 # Conditional build:
 %bcond_without	dist_kernel	# without distribution kernel
