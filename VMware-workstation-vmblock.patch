@@ -1,0 +1,82 @@
+--- vmware-any-any-update115/vmblock-only/linux/dentry.c.orig	2007-11-28 11:33:57.000000000 +0100
++++ vmware-any-any-update115/vmblock-only/linux/dentry.c	2008-07-26 14:03:37.000000000 +0200
+@@ -112,8 +112,13 @@
+       LOG(4, "DentryOpRevalidate: [%s] no longer exists\n", iinfo->name);
+       return 0;
+    }
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
++   ret = actualNd.path.dentry && actualNd.path.dentry->d_inode;
++   path_put(&actualNd.path);
++#else
+    ret = actualNd.dentry && actualNd.dentry->d_inode;
+    path_release(&actualNd);
++#endif
+ 
+    LOG(8, "DentryOpRevalidate: [%s] %s revalidated\n",
+        iinfo->name, ret ? "" : "not");
+--- vmware-any-any-update115/vmblock-only/linux/filesystem.c.orig	2007-11-28 11:33:57.000000000 +0100
++++ vmware-any-any-update115/vmblock-only/linux/filesystem.c	2008-07-26 14:06:42.000000000 +0200
+@@ -273,7 +273,11 @@
+ 
+    ASSERT(sb);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
++   inode = iget_locked(sb, ino);
++#else
+    inode = iget(sb, ino);
++#endif
+    if (!inode) {
+       return NULL;
+    }
+@@ -301,8 +305,13 @@
+       return inode;
+    }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25)
++   iinfo->actualDentry = actualNd.path.dentry;
++   path_put(&actualNd.path);
++#else
+    iinfo->actualDentry = actualNd.dentry;
+    path_release(&actualNd);
++#endif
+ 
+    return inode;
+ 
+--- vmware-any-any-update115/vmblock-only/linux/super.c.orig	2007-11-28 11:33:57.000000000 +0100
++++ vmware-any-any-update115/vmblock-only/linux/super.c	2008-07-26 14:10:27.000000000 +0200
+@@ -37,7 +37,9 @@
+ #else
+ static void SuperOpClearInode(struct inode *inode);
+ #endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
+ static void SuperOpReadInode(struct inode *inode);
++#endif
+ #ifdef VMW_STATFS_2618
+ static int SuperOpStatfs(struct dentry *dentry, struct compat_kstatfs *stat);
+ #else
+@@ -52,7 +54,9 @@
+ #else
+    .clear_inode   = SuperOpClearInode,
+ #endif
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
+    .read_inode    = SuperOpReadInode,
++#endif
+    .statfs        = SuperOpStatfs,
+ };
+ 
+@@ -138,6 +142,7 @@
+  *----------------------------------------------------------------------------
+  */
+ 
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 25)
+ static void
+ SuperOpReadInode(struct inode *inode)  // IN: Inode to initialize
+ {
+@@ -147,6 +152,7 @@
+    iinfo->nameLen = 0;
+    iinfo->actualDentry = NULL;
+ }
++#endif
+ 
+ 
+ /*
