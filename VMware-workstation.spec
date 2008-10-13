@@ -47,6 +47,8 @@ Patch1:		%{name}-vmblock.patch
 Patch2:		%{name}-run_script.patch
 NoSource:	0
 URL:		http://www.vmware.com/
+# http://securitytracker.com/alerts/2008/Oct/1020991.html
+BuildRequires:	security(VMSA-2008-0016)
 %{?with_kernel:BuildRequires:	gcc-c++}
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.7}
 %{?with_userspace:BuildRequires:	rpm-perlprov}
