@@ -1,0 +1,3 @@
+- updated to 6.0.4-93057 [fixes: CVE-2008-4915]
+- new subpackage kernel-misc-vmblock
+- missing dirs, cleanups
