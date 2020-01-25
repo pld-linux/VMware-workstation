@@ -10,7 +10,6 @@
 %bcond_with	internal_libs	# internal libs stuff
 %bcond_with	verbose		# verbose build (V=1)
 #
-%include	/usr/lib/rpm/macros.perl
 
 %ifarch %{x8664}
 %undefine	with_userspace
